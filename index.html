@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#f7f1e8" />
+  <title>Папа + Миша — интерактивный урок</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <section id="startScreen" class="panel">
+    <div class="brand">
+      <div class="brand-badge">✏️</div>
+      <div>
+        <strong>Папа + Миша</strong>
+        <div class="muted" style="font-size:13px">Интерактивный урок • MVP 1.3</div>
+      </div>
+    </div>
+    <div id="roleSelect">
+      <h1>Начать занятие</h1>
+      <p class="muted">Создай занятие и отправь жене готовую ссылку. Ничего вводить на телефоне ребёнка не нужно.</p>
+      <div class="role-grid">
+        <button class="role-btn" id="parentRole"><div style="font-size:30px">🔗</div><strong>Создать занятие</strong><span>Получить ссылку для телефона ребёнка</span></button>
+        <button class="role-btn" id="demoRole"><div style="font-size:30px">🧪</div><strong>Тест на этом устройстве</strong><span>Самому потыкать, порисовать и перетаскивать</span></button>
+      </div>
+    </div>
+    <div id="parentSetup" class="setup">
+      <h1>Ссылка готова</h1><p class="muted">Отправь её жене. Она просто откроет ссылку на телефоне ребёнка — подключение начнётся автоматически.</p>
+      <div class="code-card" style="text-align:left"><div class="code-label">Ссылка для ребёнка</div><div id="shareLink" style="font-size:15px;line-height:1.35;word-break:break-all;margin-top:8px;font-weight:700">—</div></div>
+      <button id="copyLinkBtn" class="secondary big-btn">Копировать ссылку</button>
+      <div class="row" style="justify-content:center;margin-top:14px"><div id="parentStatus" class="status waiting"><span class="dot"></span><span>Создаём занятие…</span></div></div>
+      <button id="parentEnterLesson" class="primary big-btn" disabled>Открыть урок</button><button class="ghost big-btn backBtn">Назад</button>
+    </div>
+    <div id="childSetup" class="setup"><h1>Подключаемся…</h1><p class="muted">Ничего вводить не нужно. Через несколько секунд откроется урок.</p><div style="margin-top:18px;text-align:center"><div id="childStatus" class="status waiting"><span class="dot"></span><span>Ищем занятие</span></div></div><button class="ghost big-btn backBtn">Назад</button></div>
+  </section>
+  <section id="lessonScreen">
+    <div class="lesson-shell">
+      <div class="lesson-top"><div><div class="lesson-title">Папа + Миша • Урок 1</div><div id="liveStatus" class="status online" style="margin-top:5px"><span class="dot"></span><span>На связи</span></div></div><button id="exitLesson" class="ghost" style="padding:10px 14px">Выйти</button></div>
+      <div class="task-card" id="taskCard"><div class="feedback-toast" id="feedbackToast"></div><div class="task-head"><div class="step" id="stepLabel">Задание 1 из 5</div><h2 id="taskTitle">Кто живёт в воде?</h2><p id="taskSubtitle">Нажми пальчиком на правильную картинку.</p></div><div class="stage" id="stage"><div id="taskContent"></div><canvas id="drawCanvas"></canvas><div id="pointerLayer"></div></div></div>
+      <div class="finish-card" id="finishCard"><div class="finish-hero">🎉</div><h2>Молодец!</h2><p>Урок закончен. Выбери себе наклейку.</p><div class="sticker-grid" id="stickerGrid"><button class="sticker" data-sticker="⭐">⭐</button><button class="sticker" data-sticker="🚀">🚀</button><button class="sticker" data-sticker="🦖">🦖</button></div><div id="rewardResult"></div><div class="confetti" id="confetti"></div><button id="finishExit" class="primary" style="margin-top:20px;display:none">Закончить занятие</button></div>
+      <div class="lesson-controls parent-only" id="lessonControls"><button id="prevBtn" class="ghost">← Назад</button><button id="clearBtn" class="secondary">Очистить</button><button id="praiseBtn" class="praise-btn">👍 Молодец</button><button id="nextBtn" class="primary">Дальше →</button></div>
+      <div class="child-note">Рисуй прямо пальчиком по экрану ✨</div>
+    </div>
+  </section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
