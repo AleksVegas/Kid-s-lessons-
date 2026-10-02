@@ -229,3 +229,19 @@ h1,h2,p{margin:0}h1{font-size:clamp(30px,6vw,48px);letter-spacing:-.03em;margin-
   .album{margin-top:6px}
   .reward-big{font-size:70px}
 }
+
+
+/* Lesson selector */
+.lesson-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+.lesson-card{border:2px solid var(--line);background:#fff;border-radius:24px;padding:18px;text-align:left;display:flex;flex-direction:column;gap:8px;min-height:150px;transition:.15s}
+.lesson-card:active{transform:scale(.99)}
+.lesson-card.selected{border-color:var(--accent);background:#f1f8f4;box-shadow:inset 0 0 0 2px rgba(95,143,120,.08)}
+.lesson-card-top{display:flex;align-items:center;justify-content:space-between}
+.lesson-emoji{font-size:34px}
+.lesson-status{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;padding:5px 8px;border-radius:999px;background:var(--good);color:var(--goodInk)}
+.lesson-status.new{background:var(--warm);color:#76591c}
+.lesson-card strong{font-size:19px}
+.lesson-card>span:last-child{color:var(--muted);line-height:1.35}
+.selected-lesson-line{margin-top:14px;padding:10px 13px;border-radius:14px;background:#f7faf8;border:1px solid var(--line);font-size:14px}
+.feedback{max-width:min(72vw,520px);white-space:normal;text-align:center}
+@media(max-width:720px){.lesson-grid{grid-template-columns:1fr}}
