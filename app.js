@@ -8,7 +8,7 @@ const progressTitle=$('#progressTitle'),progressRound=$('#progressRound'),blocks
 const controls=$('#controls'),childTools=$('#childTools'),liveStatus=$('#liveStatus'),netNote=$('#netNote');
 let role='demo', room='', peer=null, conn=null, reconnectTimer=null, heartbeatTimer=null, connected=false;
 let drawActive=false,currentStroke=null,remoteStroke=null,lastPointSent=0,feedbackTimer=null,dragCleanup=[];
-let state={block:0,round:0,done:false,finished:false,updatedAt:Date.now(),roundData:{}};
+let state={started:false,block:0,round:0,done:false,finished:false,updatedAt:Date.now(),roundData:{}};
 
 const blocks=[
  {name:'Разминка',icon:'👀',rounds:[
@@ -43,31 +43,33 @@ const blocks=[
 
 function key(){return `${state.block}-${state.round}`}
 function data(){if(!state.roundData[key()]) state.roundData[key()]={}; return state.roundData[key()]}
-function touchState(){state.updatedAt=Date.now();updateNextControls();sendState()}
+function touchState(){state.updatedAt=Date.now();updateNextControls();if(role==='child'&&state.done)send({type:'taskDone',key:key(),roundData:data()});sendState()}
 function setStatus(el,kind,text){el.className='status '+kind;el.innerHTML='<span class="dot"></span><span>'+text+'</span>'}
 function showSetup(which){roleSelect.style.display='none';parentSetup.classList.toggle('active',which==='parent');childSetup.classList.toggle('active',which==='child')}
 function resetHome(){try{conn?.close()}catch{};try{peer?.destroy()}catch{};clearTimeout(reconnectTimer);clearInterval(heartbeatTimer);peer=conn=null;connected=false;roleSelect.style.display='block';parentSetup.classList.remove('active');childSetup.classList.remove('active');startScreen.style.display='block';lessonScreen.classList.remove('active');document.body.classList.remove('lesson-open','needs-landscape','child-role');}
 $$('.backBtn').forEach(b=>b.onclick=resetHome);$('#exitLesson').onclick=resetHome;$('#finishExit').onclick=resetHome;
 
-function freshState(){state={block:0,round:0,done:false,finished:false,updatedAt:Date.now(),roundData:{}}}
+function freshState(){state={started:false,block:0,round:0,done:false,finished:false,updatedAt:Date.now(),roundData:{}}}
 $('#demoRole').onclick=()=>{role='demo';freshState();enterLesson();};
 $('#parentRole').onclick=startParent;
 
 function makeRoom(){return Math.random().toString(36).slice(2,8).toUpperCase()}
 function childUrl(){const base=location.href.split('?')[0].split('#')[0];return `${base}?child=1&room=${encodeURIComponent(room)}`}
-function startParent(){role='parent';freshState();room=makeRoom();showSetup('parent');$('#shareLink').textContent=childUrl();$('#shareLink').dataset.url=childUrl();if(typeof Peer==='undefined'){setStatus($('#parentStatus'),'error','PeerJS не загрузился. Для локального теста используй тестовый режим.');return}const id='kidsv2-'+room.toLowerCase();peer=new Peer(id,{debug:0});peer.on('open',()=>setStatus($('#parentStatus'),'waiting','Ждём открытия ссылки у ребёнка'));peer.on('connection',c=>{if(conn&&conn.open)try{conn.close()}catch{};conn=c;setupConn(c)});peer.on('disconnected',()=>{setStatus($('#parentStatus'),'waiting','Сигнализация потеряна — восстанавливаем…');try{peer.reconnect()}catch{}});peer.on('error',e=>setStatus($('#parentStatus'),'error','Ошибка: '+e.type));}
+function startParent(){role='parent';freshState();room=makeRoom();showSetup('parent');$('#shareLink').textContent=childUrl();$('#shareLink').dataset.url=childUrl();if(typeof Peer==='undefined'){setStatus($('#parentStatus'),'error','PeerJS не загрузился. Для локального теста используй тестовый режим.');return}const id='kidsv2-'+room.toLowerCase();peer=new Peer(id,{debug:0});peer.on('open',()=>setStatus($('#parentStatus'),'waiting','Ждём открытия ссылки у ребёнка'));peer.on('connection',c=>{if(conn&&conn.open)try{conn.close()}catch{};conn=c;setupConn(c)});peer.on('disconnected',()=>{try{peer.reconnect()}catch{};if(!(conn&&conn.open))setStatus($('#parentStatus'),'waiting','Восстанавливаем соединение…')});peer.on('error',e=>setStatus($('#parentStatus'),'error','Ошибка: '+e.type));}
 $('#copyLinkBtn').onclick=async()=>{const u=$('#shareLink').dataset.url||$('#shareLink').textContent;try{await navigator.clipboard.writeText(u);$('#copyLinkBtn').textContent='Скопировано ✓'}catch{const t=document.createElement('textarea');t.value=u;document.body.append(t);t.select();document.execCommand('copy');t.remove();$('#copyLinkBtn').textContent='Скопировано ✓'}};
-$('#parentEnterLesson').onclick=enterLesson;
+$('#parentEnterLesson').onclick=()=>{state.started=true;state.updatedAt=Date.now();sendState(true);enterLesson();};
 
 function startChild(code){role='child';freshState();state.updatedAt=0;room=(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);document.body.classList.add('child-role');showSetup('child');if(typeof Peer==='undefined'){setStatus($('#childStatus'),'error','Не удалось загрузить модуль связи');return}connectChildPeer();}
-function connectChildPeer(){clearTimeout(reconnectTimer);if(peer&&!peer.destroyed){try{peer.destroy()}catch{}};peer=new Peer(undefined,{debug:0});peer.on('open',()=>connectToParent());peer.on('disconnected',()=>{setStatus($('#childStatus'),'waiting','Восстанавливаем соединение…');try{peer.reconnect()}catch{scheduleReconnect()}});peer.on('error',e=>{if(e.type==='peer-unavailable'){setStatus($('#childStatus'),'waiting','Взрослый ещё не подключён. Повторяем…');scheduleReconnect()}else{setStatus($('#childStatus'),'waiting','Связь нестабильна. Повторяем…');scheduleReconnect()}});}
+function connectChildPeer(){clearTimeout(reconnectTimer);if(peer&&!peer.destroyed){try{peer.destroy()}catch{}};peer=new Peer(undefined,{debug:0});peer.on('open',()=>connectToParent());peer.on('disconnected',()=>{try{peer.reconnect()}catch{};if(!(conn&&conn.open)){setStatus($('#childStatus'),'waiting','Восстанавливаем соединение…');scheduleReconnect()}});peer.on('error',e=>{if(e.type==='peer-unavailable'){setStatus($('#childStatus'),'waiting','Взрослый ещё не подключён. Повторяем…');scheduleReconnect()}else{setStatus($('#childStatus'),'waiting','Связь нестабильна. Повторяем…');scheduleReconnect()}});}
 function connectToParent(){if(!peer||peer.destroyed)return;try{conn=peer.connect('kidsv2-'+room.toLowerCase(),{reliable:true,serialization:'json'});setupConn(conn)}catch{scheduleReconnect()}}
 function scheduleReconnect(){clearTimeout(reconnectTimer);reconnectTimer=setTimeout(()=>{if(role==='child'&&!connected){if(peer&&peer.open)connectToParent();else connectChildPeer()}},2500)}
 
-function setupConn(c){c.on('open',()=>{connected=true;if(role==='parent'){setStatus($('#parentStatus'),'online','Ребёнок подключён ✓');$('#parentEnterLesson').disabled=false}else{setStatus($('#childStatus'),'online','Подключено ✓');if(!lessonScreen.classList.contains('active'))enterLesson()}setLive(true);send({type:'snapshot',state});send({type:'hello'});clearInterval(heartbeatTimer);heartbeatTimer=setInterval(()=>send({type:'ping'}),6000)});c.on('data',handleMsg);c.on('close',()=>{connected=false;setLive(false);if(role==='child')scheduleReconnect();else setStatus($('#parentStatus'),'waiting','Связь потеряна. Ждём переподключения…')});c.on('error',()=>{connected=false;setLive(false);if(role==='child')scheduleReconnect()})}
+function setupConn(c){c.on('open',()=>{connected=true;if(role==='parent'){setStatus($('#parentStatus'),'online','Ребёнок подключён ✓');$('#parentEnterLesson').disabled=false}else{setStatus($('#childStatus'),'online',state.started?'Подключено ✓':'Подключено ✓ Ждём начала урока')}setLive(true);send({type:'hello'});if(role==='parent')sendState(true);clearInterval(heartbeatTimer);heartbeatTimer=setInterval(()=>send({type:'ping'}),12000)});c.on('data',handleMsg);c.on('close',()=>{connected=false;setLive(false);if(role==='child')scheduleReconnect();else setStatus($('#parentStatus'),'waiting','Связь потеряна. Ждём переподключения…')});c.on('error',()=>{connected=false;setLive(false);if(role==='child')scheduleReconnect()})}
 function send(obj){if(conn&&conn.open)try{conn.send(obj)}catch{}}
-function sendState(){send({type:'snapshot',state})}
-function handleMsg(m){if(!m||typeof m!=='object')return;if(m.type==='hello'){sendState();return}if(m.type==='snapshot'&&m.state){if((m.state.updatedAt||0)>(state.updatedAt||0)){state=JSON.parse(JSON.stringify(m.state));render()}return}if(m.type==='praise'){showFeedback('👍 Молодец!','good');return}if(m.type==='stroke'){receiveStroke(m);return}if(m.type==='pointer'){showPointer(m.x,m.y);return}}
+function clone(v){return JSON.parse(JSON.stringify(v))}
+function sendState(force=false){send({type:'snapshot',state,source:role,force})}
+function mergeChildProgress(child){if(!child||child.block!==state.block||child.round!==state.round)return;const k=key();if(child.roundData&&child.roundData[k])state.roundData[k]=clone(child.roundData[k]);state.done=!!child.done;state.updatedAt=Math.max(state.updatedAt||0,child.updatedAt||0);if(lessonScreen.classList.contains('active'))render();else updateNextControls()}
+function handleMsg(m){if(!m||typeof m!=='object')return;if(m.type==='ping')return;if(m.type==='hello'){if(role==='parent')sendState(true);return}if(m.type==='snapshot'&&m.state){if(role==='child'&&m.source==='parent'){state=clone(m.state);if(state.started){if(!lessonScreen.classList.contains('active'))enterLesson();else render()}else setStatus($('#childStatus'),'online','Подключено ✓ Ждём начала урока');return}if(role==='parent'&&m.source==='child'){mergeChildProgress(m.state);return}}if(m.type==='taskDone'&&role==='parent'&&m.key===key()){if(m.roundData)state.roundData[key()]=clone(m.roundData);state.done=true;updateNextControls();if(lessonScreen.classList.contains('active'))render();return}if(m.type==='praise'){showFeedback('👍 Молодец!','good');return}if(m.type==='strokeComplete'){receiveStrokeComplete(m);return}if(m.type==='pointer'){showPointer(m.x,m.y);return}}
 function setLive(ok){if(role==='demo'){setStatus(liveStatus,'online','Тестовый режим');netNote.textContent='';return}if(ok){setStatus(liveStatus,'online','На связи');netNote.textContent=''}else{setStatus(liveStatus,'waiting','Переподключаемся…');netNote.textContent=role==='child'?'Можно продолжать урок — прогресс не пропадёт.':'Экран останется на месте.'}}
 window.addEventListener('online',()=>{if(role!=='demo'&&!connected){setLive(false);if(role==='child')scheduleReconnect()}});window.addEventListener('offline',()=>{if(role!=='demo'){connected=false;setLive(false)}});
 
@@ -134,11 +136,12 @@ function resizeCanvas(){const rect=stage.getBoundingClientRect(),dpr=Math.min(de
 function drawAll(strokes){resizeCanvas();ctx.clearRect(0,0,stage.clientWidth,stage.clientHeight);(strokes||[]).forEach(drawStroke)}
 function drawStroke(st){if(!st||st.length<2)return;ctx.beginPath();ctx.moveTo(st[0].x*stage.clientWidth,st[0].y*stage.clientHeight);for(let i=1;i<st.length;i++)ctx.lineTo(st[i].x*stage.clientWidth,st[i].y*stage.clientHeight);ctx.stroke()}
 function pointFromEvent(e){const r=stage.getBoundingClientRect();return{x:Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y:Math.max(0,Math.min(1,(e.clientY-r.top)/r.height))}}
-canvas.addEventListener('pointerdown',e=>{if(currentRound()?.type!=='trace'||role==='parent')return;e.preventDefault();drawActive=true;canvas.setPointerCapture?.(e.pointerId);currentStroke=[pointFromEvent(e)];data().strokes=data().strokes||[];data().strokes.push(currentStroke);send({type:'stroke',phase:'start',p:currentStroke[0],key:key()});drawAll(data().strokes)});
-canvas.addEventListener('pointermove',e=>{if(!drawActive)return;e.preventDefault();const p=pointFromEvent(e);currentStroke.push(p);drawAll(data().strokes);const now=performance.now();if(now-lastPointSent>35){send({type:'stroke',phase:'move',p,key:key()});lastPointSent=now}});
-function endStroke(){if(!drawActive)return;drawActive=false;if(currentStroke&&currentStroke.length){send({type:'stroke',phase:'end',p:currentStroke[currentStroke.length-1],key:key()});const a=currentStroke[0],b=currentStroke[currentStroke.length-1];if(Math.hypot(a.x-.12,a.y-.76)<.16&&Math.hypot(b.x-.87,b.y-.23)<.18){state.done=true;showFeedback('👍 Молодец!','good')}else showFeedback('👎 Попробуй ещё','try');touchState()}currentStroke=null}
+function compressStroke(st,maxPoints=70){if(!st||st.length<=maxPoints)return st?st.slice():[];const step=(st.length-1)/(maxPoints-1),out=[];for(let i=0;i<maxPoints;i++)out.push(st[Math.min(st.length-1,Math.round(i*step))]);return out}
+canvas.addEventListener('pointerdown',e=>{if(currentRound()?.type!=='trace'||role==='parent')return;e.preventDefault();drawActive=true;canvas.setPointerCapture?.(e.pointerId);currentStroke=[pointFromEvent(e)];data().strokes=data().strokes||[];data().strokes.push(currentStroke);drawAll(data().strokes)});
+canvas.addEventListener('pointermove',e=>{if(!drawActive)return;e.preventDefault();currentStroke.push(pointFromEvent(e));drawAll(data().strokes)});
+function endStroke(){if(!drawActive)return;drawActive=false;if(currentStroke&&currentStroke.length){const d=data();const compact=compressStroke(currentStroke);d.strokes[d.strokes.length-1]=compact;d.strokes=d.strokes.slice(-3);send({type:'strokeComplete',points:compact,key:key()});const a=compact[0],b=compact[compact.length-1];if(Math.hypot(a.x-.12,a.y-.76)<.18&&Math.hypot(b.x-.87,b.y-.23)<.20){state.done=true;showFeedback('👍 Молодец!','good')}else{state.done=false;showFeedback('👎 Попробуй ещё','try')}touchState()}currentStroke=null}
 canvas.addEventListener('pointerup',endStroke);canvas.addEventListener('pointercancel',endStroke);
-function receiveStroke(m){if(m.key!==key()||currentRound()?.type!=='trace')return;const d=data();d.strokes=d.strokes||[];if(m.phase==='start'){remoteStroke=[m.p];d.strokes.push(remoteStroke)}else if(m.phase==='move'&&remoteStroke)remoteStroke.push(m.p);else if(m.phase==='end'&&remoteStroke){remoteStroke.push(m.p);remoteStroke=null}drawAll(d.strokes)}
+function receiveStrokeComplete(m){if(m.key!==key()||currentRound()?.type!=='trace'||!Array.isArray(m.points))return;const d=data();d.strokes=d.strokes||[];d.strokes.push(m.points);d.strokes=d.strokes.slice(-3);drawAll(d.strokes)}
 function clearTrace(){if(currentRound()?.type!=='trace')return;data().strokes=[];state.done=false;touchState();render()}
 $('#clearBtn').onclick=clearTrace;$('#childClear').onclick=clearTrace;
 
@@ -189,8 +192,8 @@ function renderMatch(r){
  });
 }
 
-function advance(){if(state.finished)return;const b=blocks[state.block];if(state.round<b.rounds.length-1){state.round++}else if(state.block<blocks.length-1){state.block++;state.round=0}else{finishLesson();return}state.done=false;state.updatedAt=Date.now();sendState();render()}
-function back(){if(state.round>0)state.round--;else if(state.block>0){state.block--;state.round=blocks[state.block].rounds.length-1}else return;state.done=!!(state.roundData[key()]?.completed);state.updatedAt=Date.now();sendState();render()}
+function advance(){if(state.finished)return;const b=blocks[state.block];if(state.round<b.rounds.length-1)state.round++;else if(state.block<blocks.length-1){state.block++;state.round=0}else{finishLesson();return}state.done=!!(state.roundData[key()]?.completed);state.updatedAt=Date.now();sendState(true);render()}
+function back(){if(state.round>0)state.round--;else if(state.block>0){state.block--;state.round=blocks[state.block].rounds.length-1}else return;state.done=!!(state.roundData[key()]?.completed);state.updatedAt=Date.now();sendState(true);render()}
 function updateNextControls(){
  const next=$('#skipBtn'),force=$('#forceNextBtn');
  if(!next||!force)return;
@@ -206,7 +209,7 @@ $('#forceNextBtn').onclick=()=>{data().completed=false;advance()};
 $('#prevBtn').onclick=back;
 $('#praiseBtn').onclick=()=>{showFeedback('👍 Молодец!','good');send({type:'praise'})};
 
-function finishLesson(){state.finished=true;state.updatedAt=Date.now();sendState();showFinish()}
+function finishLesson(){state.finished=true;state.updatedAt=Date.now();sendState(true);showFinish()}
 function showFinish(){$('#taskCard').classList.add('hidden');controls.style.display='none';childTools.style.display='none';const f=$('#finishCard');f.classList.add('active');updateAlbum();$$('.sticker').forEach(b=>{b.classList.remove('chosen');b.onclick=()=>chooseSticker(b.dataset.sticker,b)});}
 function getAlbum(){try{return JSON.parse(localStorage.getItem('kidsLessonAlbum')||'[]')}catch{return[]}}
 function updateAlbum(){const a=getAlbum();$('#albumList').textContent=a.length?a.join(' '):'Пока пусто'}
