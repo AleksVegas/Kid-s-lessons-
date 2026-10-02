@@ -5,12 +5,12 @@ const startScreen=$('#startScreen'),lessonScreen=$('#lessonScreen'),roleSelect=$
 const stage=$('#stage'),stageInner=$('#stageInner'),canvas=$('#canvas'),ctx=canvas.getContext('2d'),pointerLayer=$('#pointerLayer');
 const feedback=$('#feedback'),roundDone=$('#roundDone'),continueRound=$('#continueRound');
 const progressTitle=$('#progressTitle'),progressRound=$('#progressRound'),blocksEl=$('#blocks'),taskIcon=$('#taskIcon'),step=$('#step'),taskTitle=$('#taskTitle'),taskSubtitle=$('#taskSubtitle');
-const controls=$('#controls'),childTools=$('#childTools'),liveStatus=$('#liveStatus'),netNote=$('#netNote');
+const controls=$('#controls'),childTools=$('#childTools'),liveStatus=$('#liveStatus'),netNote=$('#netNote'),lessonHeaderTitle=$('#lessonHeaderTitle'),selectedLessonName=$('#selectedLessonName'),selectedLessonSetup=$('#selectedLessonSetup');
 let role='demo', room='', peer=null, conn=null, reconnectTimer=null, heartbeatTimer=null, connected=false;
 let drawActive=false,currentStroke=null,remoteStroke=null,lastPointSent=0,feedbackTimer=null,dragCleanup=[];
-let state={started:false,block:0,round:0,done:false,finished:false,updatedAt:Date.now(),roundData:{}};
+let state={lessonId:'1',started:false,block:0,round:0,done:false,finished:false,updatedAt:Date.now(),roundData:{}};
 
-const blocks=[
+const lesson1Blocks=[
  {name:'Разминка',icon:'👀',rounds:[
   {type:'choice',title:'Кто живёт в воде?',subtitle:'Найди того, кто умеет жить в воде.',correct:'fish',items:[['cat','🐱','Кот'],['fish','🐟','Рыбка'],['dog','🐶','Собака'],['rabbit','🐰','Зайчик']]},
   {type:'choice',title:'Кто умеет летать?',subtitle:'Нажми на того, кто летает.',correct:'butterfly',items:[['hedgehog','🦔','Ёжик'],['butterfly','🦋','Бабочка'],['frog','🐸','Лягушка'],['snail','🐌','Улитка']]},
@@ -41,6 +41,52 @@ const blocks=[
  ]}
 ];
 
+const lesson2Blocks=[
+ {name:'У берега',icon:'🌊',rounds:[
+  {type:'choice',title:'Кто живёт в море?',subtitle:'Выбери морского жителя.',hint:'Кто плавает под водой?',correct:'fish',items:[['cat','🐱','Кот'],['fish','🐟','Рыбка'],['dog','🐶','Собака'],['rabbit','🐰','Зайчик']]},
+  {type:'choice',title:'Что плавает по воде?',subtitle:'Найди транспорт для воды.',hint:'На чём можно плыть?',correct:'boat',items:[['car','🚗','Машина'],['train','🚆','Поезд'],['boat','⛵','Лодка'],['plane','✈️','Самолёт']]},
+  {type:'choice',title:'Что защищает от солнца?',subtitle:'Выбери то, что надевают на голову.',hint:'Что надевают на голову?',correct:'cap',items:[['cap','🧢','Кепка'],['glove','🧤','Перчатка'],['boot','🥾','Ботинок'],['scarf','🧣','Шарф']]},
+  {type:'choice',title:'Сколько ракушек?',subtitle:'Посчитай ракушки и выбери цифру.',visual:['🐚','🐚','🐚','🐚'],visualType:'count',hint:'Посчитай каждую ракушку.',correct:'4',items:[['2','2️⃣',''],['3','3️⃣',''],['4','4️⃣',''],['5','5️⃣','']]}
+ ]},
+ {name:'Собираемся в путь',icon:'🎒',rounds:[
+  {type:'sort',title:'Морские жители — в море',subtitle:'Перетащи в воду только тех, кто живёт в море.',target:'🌊',label:'Море',accept:['fish','octopus','dolphin'],items:[['fish','🐟'],['dog','🐶'],['octopus','🐙'],['cat','🐱'],['dolphin','🐬'],['butterfly','🦋']]},
+  {type:'sort',title:'Собираем вещи на пляж',subtitle:'Положи в сумку только вещи для тёплого пляжа.',target:'🎒',label:'Сумка',accept:['cap','glasses','flipflops'],items:[['cap','🧢'],['scarf','🧣'],['glasses','🕶️'],['glove','🧤'],['flipflops','🩴'],['ski','🎿']]},
+  {type:'collect',title:'Найди все ракушки',subtitle:'Нажми на все 3 ракушки.',targets:['s1','s2','s3'],counterEmoji:'🐚',wrongText:'Это не ракушка',items:[['s1','🐚',14,27],['fish','🐟',35,20],['s2','🐚',59,31],['crab','🦀',84,21],['star','⭐',24,71],['s3','🐚',49,68],['octopus','🐙',72,71],['sun','☀️',90,66]]}
+ ]},
+ {name:'Плывём',icon:'⛵',rounds:[
+  {type:'trace',title:'Доплыви до острова',subtitle:'Проведи лодку по дорожке к острову.',start:'⛵',end:'🏝️',path:'M95 360 C190 330 145 235 280 235 S430 315 495 200 S650 120 760 110'},
+  {type:'trace',title:'Помоги дельфину',subtitle:'Проведи дельфина по дорожке к волне.',start:'🐬',end:'🌊',path:'M95 360 C170 270 235 345 320 260 S455 150 520 220 S650 280 760 110'},
+  {type:'match',title:'Кто где бывает?',subtitle:'Нажми слева, потом выбери подходящее место справа.',pairs:[['fish','🐟','water','🌊'],['crab','🦀','beach','🏖️'],['bird','🐦','sky','☁️']]}
+ ]},
+ {name:'Морская логика',icon:'🧠',rounds:[
+  {type:'choice',title:'Найди лишнее',subtitle:'Три картинки — морские животные. Одна лишняя.',hint:'Кто не живёт в море?',correct:'cow',items:[['fish','🐟',''],['dolphin','🐬',''],['cow','🐮',''],['octopus','🐙','']]},
+  {type:'choice',title:'Найди лишнее',subtitle:'Три картинки — транспорт. Одна лишняя.',hint:'Что не является транспортом?',correct:'fish',items:[['car','🚗',''],['boat','⛵',''],['fish','🐟',''],['plane','✈️','']]},
+  {type:'choice',title:'Что будет дальше?',subtitle:'Посмотри на ряд и выбери следующую картинку.',visual:['🌊','☀️','🌊','☀️','❓'],visualType:'sequence',hint:'Картинки идут по очереди.',correct:'wave',items:[['sun','☀️',''],['wave','🌊',''],['shell','🐚',''],['fish','🐟','']]},
+  {type:'choice',title:'Сколько рыбок?',subtitle:'Посчитай рыбок и выбери цифру.',visual:['🐟','🐟','🐟','🐟'],visualType:'count',hint:'Посчитай рыбок по одной.',correct:'4',items:[['2','2️⃣',''],['3','3️⃣',''],['4','4️⃣',''],['5','5️⃣','']]}
+ ]},
+ {name:'Остров сокровищ',icon:'🏆',rounds:[
+  {type:'collect',title:'Найди сокровища',subtitle:'Найди и нажми на все 4 драгоценных камня.',targets:['g1','g2','g3','g4'],counterEmoji:'💎',wrongText:'Это не сокровище',items:[['g1','💎',13,24],['fish','🐟',34,19],['g2','💎',57,28],['crab','🦀',82,20],['g3','💎',23,70],['boat','⛵',45,72],['g4','💎',69,66],['shell','🐚',89,72]]},
+  {type:'choice',title:'Сколько сокровищ нашли?',subtitle:'Посчитай камни и выбери цифру.',visual:['💎','💎','💎','💎'],visualType:'count',hint:'Посчитай все камни.',correct:'4',items:[['2','2️⃣',''],['3','3️⃣',''],['4','4️⃣',''],['5','5️⃣','']]},
+  {type:'match',title:'Последние морские пары',subtitle:'Собери 3 пары.',pairs:[['boat','⛵','anchor','⚓'],['fish','🐟','water','🌊'],['palm','🌴','island','🏝️']]},
+  {type:'trace',title:'Проводим черепашку на остров',subtitle:'Последняя дорожка — и морское путешествие закончено!',start:'🐢',end:'🏝️',path:'M95 360 C175 315 190 220 305 250 S430 340 505 235 S660 135 760 110'}
+ ]}
+];
+
+const lessons={
+ '1':{id:'1',title:'Урок 1: Лесное приключение',short:'Урок 1 • Лесное приключение',blocks:lesson1Blocks,stickers:['⭐','🚀','🦖']},
+ '2':{id:'2',title:'Урок 2: Морское путешествие',short:'Урок 2 • Морское путешествие',blocks:lesson2Blocks,stickers:['🐠','🐢','⚓']}
+};
+let lessonId='1',blocks=lesson1Blocks;
+function applyLesson(id){
+ lessonId=lessons[id]?String(id):'1';
+ blocks=lessons[lessonId].blocks;
+ $$('.lesson-card').forEach(b=>b.classList.toggle('selected',b.dataset.lesson===lessonId));
+ if(selectedLessonName)selectedLessonName.textContent=lessons[lessonId].title;
+ if(selectedLessonSetup)selectedLessonSetup.textContent=lessons[lessonId].title;
+ if(lessonHeaderTitle)lessonHeaderTitle.textContent=lessons[lessonId].short;
+}
+
+
 function key(){return `${state.block}-${state.round}`}
 function data(){if(!state.roundData[key()]) state.roundData[key()]={}; return state.roundData[key()]}
 function touchState(){state.updatedAt=Date.now();updateNextControls();if(role==='child'&&state.done)send({type:'taskDone',key:key(),roundData:data()});sendState()}
@@ -49,7 +95,9 @@ function showSetup(which){roleSelect.style.display='none';parentSetup.classList.
 function resetHome(){try{conn?.close()}catch{};try{peer?.destroy()}catch{};clearTimeout(reconnectTimer);clearInterval(heartbeatTimer);peer=conn=null;connected=false;roleSelect.style.display='block';parentSetup.classList.remove('active');childSetup.classList.remove('active');startScreen.style.display='block';lessonScreen.classList.remove('active');document.body.classList.remove('lesson-open','needs-landscape','child-role');}
 $$('.backBtn').forEach(b=>b.onclick=resetHome);$('#exitLesson').onclick=resetHome;$('#finishExit').onclick=resetHome;
 
-function freshState(){state={started:false,block:0,round:0,done:false,finished:false,updatedAt:Date.now(),roundData:{}}}
+function freshState(){state={lessonId,started:false,block:0,round:0,done:false,finished:false,updatedAt:Date.now(),roundData:{}}}
+$('.lesson-card').forEach(b=>b.onclick=()=>applyLesson(b.dataset.lesson));
+applyLesson('1');
 $('#demoRole').onclick=()=>{role='demo';freshState();enterLesson();};
 $('#parentRole').onclick=startParent;
 
@@ -68,12 +116,12 @@ function setupConn(c){c.on('open',()=>{connected=true;if(role==='parent'){setSta
 function send(obj){if(conn&&conn.open)try{conn.send(obj)}catch{}}
 function clone(v){return JSON.parse(JSON.stringify(v))}
 function sendState(force=false){send({type:'snapshot',state,source:role,force})}
-function mergeChildProgress(child){if(!child||child.block!==state.block||child.round!==state.round)return;const k=key();if(child.roundData&&child.roundData[k])state.roundData[k]=clone(child.roundData[k]);state.done=!!child.done;state.updatedAt=Math.max(state.updatedAt||0,child.updatedAt||0);if(lessonScreen.classList.contains('active'))render();else updateNextControls()}
-function handleMsg(m){if(!m||typeof m!=='object')return;if(m.type==='ping')return;if(m.type==='hello'){if(role==='parent')sendState(true);return}if(m.type==='snapshot'&&m.state){if(role==='child'&&m.source==='parent'){state=clone(m.state);if(state.started){if(!lessonScreen.classList.contains('active'))enterLesson();else render()}else setStatus($('#childStatus'),'online','Подключено ✓ Ждём начала урока');return}if(role==='parent'&&m.source==='child'){mergeChildProgress(m.state);return}}if(m.type==='taskDone'&&role==='parent'&&m.key===key()){if(m.roundData)state.roundData[key()]=clone(m.roundData);state.done=true;updateNextControls();if(lessonScreen.classList.contains('active'))render();return}if(m.type==='praise'){showFeedback('👍 Молодец!','good');return}if(m.type==='strokeComplete'){receiveStrokeComplete(m);return}if(m.type==='pointer'){showPointer(m.x,m.y);return}}
+function mergeChildProgress(child){if(!child||child.block!==state.block||child.round!==state.round)return;const k=key();if(child.roundData&&child.roundData[k])state.roundData[k]=clone(child.roundData[k]);state.done=state.done||!!child.done;state.updatedAt=Math.max(state.updatedAt||0,child.updatedAt||0);if(lessonScreen.classList.contains('active'))render();else updateNextControls()}
+function handleMsg(m){if(!m||typeof m!=='object')return;if(m.type==='ping')return;if(m.type==='hello'){if(role==='parent')sendState(true);return}if(m.type==='snapshot'&&m.state){if(role==='child'&&m.source==='parent'){state=clone(m.state);applyLesson(state.lessonId||'1');if(state.started){if(!lessonScreen.classList.contains('active'))enterLesson();else render()}else setStatus($('#childStatus'),'online','Подключено ✓ Ждём начала урока');return}if(role==='parent'&&m.source==='child'){mergeChildProgress(m.state);return}}if(m.type==='taskDone'&&role==='parent'&&m.key===key()){if(m.roundData)state.roundData[key()]=clone(m.roundData);state.done=true;updateNextControls();if(lessonScreen.classList.contains('active'))render();return}if(m.type==='praise'){showFeedback('👍 Молодец!','good');return}if(m.type==='strokeComplete'){receiveStrokeComplete(m);return}if(m.type==='pointer'){showPointer(m.x,m.y);return}}
 function setLive(ok){if(role==='demo'){setStatus(liveStatus,'online','Тестовый режим');netNote.textContent='';return}if(ok){setStatus(liveStatus,'online','На связи');netNote.textContent=''}else{setStatus(liveStatus,'waiting','Переподключаемся…');netNote.textContent=role==='child'?'Можно продолжать урок — прогресс не пропадёт.':'Экран останется на месте.'}}
 window.addEventListener('online',()=>{if(role!=='demo'&&!connected){setLive(false);if(role==='child')scheduleReconnect()}});window.addEventListener('offline',()=>{if(role!=='demo'){connected=false;setLive(false)}});
 
-function enterLesson(){startScreen.style.display='none';lessonScreen.classList.add('active');document.body.classList.add('lesson-open');if(role==='child'||role==='demo')document.body.classList.add('needs-landscape');controls.style.display=role==='child'?'none':'flex';childTools.style.display=(role==='child')?'block':'none';setLive(connected||role==='demo');render()}
+function enterLesson(){applyLesson(state.lessonId||lessonId);startScreen.style.display='none';lessonScreen.classList.add('active');document.body.classList.add('lesson-open');if(role==='child'||role==='demo')document.body.classList.add('needs-landscape');controls.style.display=role==='child'?'none':'flex';childTools.style.display=(role==='child')?'block':'none';setLive(connected||role==='demo');render()}
 function currentRound(){return blocks[state.block]?.rounds[state.round]}
 function render(){cleanupDrag();if(state.finished){showFinish();return}$('#taskCard').classList.remove('hidden');$('#finishCard').classList.remove('active');const b=blocks[state.block],r=currentRound();if(!b||!r){finishLesson();return}progressTitle.textContent=`Блок ${state.block+1} из ${blocks.length} • ${b.name}`;progressRound.textContent=`Раунд ${state.round+1} из ${b.rounds.length}`;step.textContent=`${b.name} · ${state.round+1}/${b.rounds.length}`;taskIcon.textContent=b.icon;taskTitle.textContent=r.title;taskSubtitle.textContent=r.subtitle;blocksEl.innerHTML=blocks.map((_,i)=>`<div class="block-dot ${i<state.block?'done':i===state.block?'active':''}"></div>`).join('');stageInner.innerHTML='';pointerLayer.innerHTML='';canvas.style.pointerEvents='none';canvas.style.display='none';roundDone.classList.remove('show');continueRound.textContent=(state.block===blocks.length-1&&state.round===b.rounds.length-1)?'Завершить урок 🎉':(state.round===b.rounds.length-1?'Следующий блок →':'Продолжить →');$('#clearBtn').style.display=r.type==='trace'?'inline-block':'none';$('#childClear').style.display=r.type==='trace'?'inline-block':'none';$('#prevBtn').disabled=state.block===0&&state.round===0;renderRound(r);updateNextControls();}
 function renderRound(r){if(r.type==='choice')renderChoice(r);else if(r.type==='sort')renderSort(r);else if(r.type==='trace')renderTrace(r);else if(r.type==='collect')renderCollect(r);else if(r.type==='match')renderMatch(r)}
@@ -103,8 +151,8 @@ function renderChoice(r){
    stageInner.innerHTML=`<div class="choices">${r.items.map(([id,e,l])=>`<button class="choice ${d.selected===id?'selected':''}" data-id="${id}"><div class="emo">${e}</div>${l?`<div class="lab">${l}</div>`:''}</button>`).join('')}</div>`;
  }
  $$('.choice').forEach(btn=>{
-   btn.disabled=role==='parent';
-   if(role!=='parent')btn.onclick=()=>{
+   btn.disabled=role==='parent'||state.done;
+   if(role!=='parent'&&!state.done)btn.onclick=()=>{
      sendPointerFrom(btn);
      const id=btn.dataset.id;
      if(id===r.correct){
@@ -115,10 +163,11 @@ function renderChoice(r){
        touchState();
      }else{
        d.selected=null;
-       $$('.choice').forEach(x=>x.classList.remove('selected'));
+       d.errors=(d.errors||0)+1;
+       $('.choice').forEach(x=>x.classList.remove('selected'));
        btn.classList.add('wrong');
        state.done=false;
-       showFeedback('👎 Попробуй ещё','try');
+       showFeedback(r.hint&&d.errors>=2?'💡 '+r.hint:'👎 Попробуй ещё','try');
        touchState();
        setTimeout(()=>btn.classList.remove('wrong'),450);
      }
@@ -210,10 +259,26 @@ $('#prevBtn').onclick=back;
 $('#praiseBtn').onclick=()=>{showFeedback('👍 Молодец!','good');send({type:'praise'})};
 
 function finishLesson(){state.finished=true;state.updatedAt=Date.now();sendState(true);showFinish()}
-function showFinish(){$('#taskCard').classList.add('hidden');controls.style.display='none';childTools.style.display='none';const f=$('#finishCard');f.classList.add('active');updateAlbum();$$('.sticker').forEach(b=>{b.classList.remove('chosen');b.onclick=()=>chooseSticker(b.dataset.sticker,b)});}
-function getAlbum(){try{return JSON.parse(localStorage.getItem('kidsLessonAlbum')||'[]')}catch{return[]}}
-function updateAlbum(){const a=getAlbum();$('#albumList').textContent=a.length?a.join(' '):'Пока пусто'}
-function chooseSticker(s,btn){$$('.sticker').forEach(x=>x.classList.remove('chosen'));btn.classList.add('chosen');let a=getAlbum();if(!a.includes(s))a.push(s);try{localStorage.setItem('kidsLessonAlbum',JSON.stringify(a))}catch{};$('#rewardResult').innerHTML=`<div class="reward-big">${s}</div><strong>Наклейка добавлена!</strong>`;$('#finishExit').style.display='inline-block';updateAlbum();send({type:'reward',sticker:s})}
+function showFinish(){
+ $('#taskCard').classList.add('hidden');controls.style.display='none';childTools.style.display='none';
+ const f=$('#finishCard');f.classList.add('active');
+ const opts=lessons[lessonId]?.stickers||['⭐','🚀','🦖'];
+ $('#stickerGrid').innerHTML=opts.map(s=>`<button class="sticker" data-sticker="${s}">${s}</button>`).join('');
+ $('#rewardResult').innerHTML='';$('#finishExit').style.display='none';
+ updateAlbum();
+ $('.sticker').forEach(b=>{b.onclick=()=>chooseSticker(b.dataset.sticker,b)});
+}
+function getAlbum(){try{const a=JSON.parse(localStorage.getItem('kidsLessonAlbum')||'[]');return Array.isArray(a)?a:[]}catch{return[]}}
+function updateAlbum(){const a=getAlbum();const icons=a.map(x=>typeof x==='string'?x:x?.sticker).filter(Boolean);$('#albumList').textContent=icons.length?icons.join(' '):'Пока пусто'}
+function chooseSticker(s,btn){
+ $('.sticker').forEach(x=>x.classList.remove('chosen'));btn.classList.add('chosen');
+ let a=getAlbum();
+ const already=a.some(x=>typeof x==='object'&&String(x.lessonId)===String(lessonId));
+ if(!already)a.push({lessonId:String(lessonId),sticker:s});
+ try{localStorage.setItem('kidsLessonAlbum',JSON.stringify(a))}catch{}
+ $('#rewardResult').innerHTML=`<div class="reward-big">${s}</div><strong>Наклейка добавлена!</strong>`;
+ $('#finishExit').style.display='inline-block';updateAlbum();send({type:'reward',lessonId,sticker:s});
+}
 
 window.addEventListener('resize',()=>{if(currentRound()?.type==='trace'&&!state.finished)drawAll(data().strokes||[])});
 const qs=new URLSearchParams(location.search);if(qs.get('child')==='1'&&qs.get('room'))startChild(qs.get('room'));
