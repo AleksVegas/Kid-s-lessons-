@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#f5efe5">
-<title>Папа + Миша — Урок 1 v2.8</title>
+<title>Папа + Миша — Урок 1 v2.9</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="rotate-overlay"><div class="rotate-card"><div class="rotate-icon">📱↻</div><h2>Поверни телефон</h2><p>Это занятие удобнее проходить в альбомном режиме.</p></div></div>
 <div class="app">
 <section id="startScreen" class="panel">
-  <div class="brand"><div class="brand-badge">✏️</div><div><strong>Папа + Миша</strong><div class="muted" style="font-size:13px">Полный урок • тест v2.8</div></div></div>
+  <div class="brand"><div class="brand-badge">✏️</div><div><strong>Папа + Миша</strong><div class="muted" style="font-size:13px">Полный урок • тест v2.9</div></div></div>
   <div id="roleSelect">
     <h1>Урок 1: Лесное приключение</h1>
     <p class="lead muted">5 полноценных блоков • 18 мини-раундов • примерно 10–15 минут. Сначала тестируем локально — GitHub не обновляется.</p>
@@ -19,7 +19,7 @@
       <button class="role-btn" id="demoRole"><div style="font-size:34px">🧪</div><strong>Тест на этом устройстве</strong><span>Проверить весь урок самому, без второго телефона.</span></button>
       <button class="role-btn" id="parentRole"><div style="font-size:34px">🔗</div><strong>Создать дистанционное занятие</strong><span>После публикации можно будет отправлять ребёнку одну ссылку.</span></button>
     </div>
-    <div style="margin-top:18px;padding:14px 16px;border-radius:18px;background:#f7faf8;border:1px solid var(--line)"><strong>Полный урок:</strong> внимание, счёт 1–5, сортировка, поиск, дорожки, пары, логика и финальная миссия. В v2.8 иконки в парах немного уменьшены, а в последовательности ряд и варианты ответа разделены на отдельные зоны.</div>
+    <div style="margin-top:18px;padding:14px 16px;border-radius:18px;background:#f7faf8;border:1px solid var(--line)"><strong>Полный урок:</strong> внимание, счёт 1–5, сортировка, поиск, дорожки, пары, логика и финальная миссия. В v2.9 исправлена синхронизация двух экранов, старт управляется взрослым, а рисование передаётся одним лёгким сообщением после завершения линии.</div>
   </div>
   <div id="parentSetup" class="setup">
     <h1>Занятие создано</h1><p class="lead muted">Ссылка заработает для второго устройства только когда этот файл будет опубликован на HTTPS. Пока можно проверить механику через «Тест на этом устройстве».</p>
@@ -28,7 +28,7 @@
     <div style="margin-top:13px"><div id="parentStatus" class="status waiting"><span class="dot"></span><span>Создаём комнату…</span></div></div>
     <button id="parentEnterLesson" class="primary big-btn" disabled>Открыть урок</button><button class="ghost big-btn backBtn">Назад</button>
   </div>
-  <div id="childSetup" class="setup"><h1>Подключаемся…</h1><p class="lead muted">Если связь пропадёт, урок не закроется — можно продолжать, а подключение восстановится автоматически.</p><div style="margin-top:16px"><div id="childStatus" class="status waiting"><span class="dot"></span><span>Ищем взрослого…</span></div></div><button class="ghost big-btn backBtn">Назад</button></div>
+  <div id="childSetup" class="setup"><h1>Подключаемся…</h1><p class="lead muted">Сначала подключись. Урок начнётся только после того, как взрослый нажмёт «Открыть урок».</p><div style="margin-top:16px"><div id="childStatus" class="status waiting"><span class="dot"></span><span>Ищем взрослого…</span></div></div><button class="ghost big-btn backBtn">Назад</button></div>
 </section>
 
 <section id="lessonScreen">
