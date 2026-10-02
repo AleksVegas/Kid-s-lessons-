@@ -6,15 +6,16 @@
 <meta name="theme-color" content="#f5efe5">
 <title>Папа + Миша — интерактивные уроки</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="lesson3.css">
 </head>
 <body>
 <div class="rotate-overlay"><div class="rotate-card"><div class="rotate-icon">📱↻</div><h2>Поверни телефон</h2><p>Это занятие удобнее проходить в альбомном режиме.</p></div></div>
 <div class="app">
 <section id="startScreen" class="panel">
-  <div class="brand"><div class="brand-badge">✏️</div><div><strong>Папа + Миша</strong><div class="muted" style="font-size:13px">Интерактивные занятия • 2 урока</div></div></div>
+  <div class="brand"><div class="brand-badge">✏️</div><div><strong>Папа + Миша</strong><div class="muted" style="font-size:13px">Интерактивные занятия • 3 урока</div></div></div>
   <div id="roleSelect">
     <h1>Выбери урок</h1>
-    <p class="lead muted">Урок 1 — наш готовый эталон. Урок 2 сделан на том же рабочем скелете с новой темой и заданиями.</p>
+    <p class="lead muted">Уроки 1–2 — рабочая база. Урок 3 добавляет новые механики и обучающие карточки с фото.</p>
 
     <div class="lesson-grid">
       <button class="lesson-card selected" data-lesson="1">
@@ -26,6 +27,11 @@
         <div class="lesson-card-top"><span class="lesson-emoji">🌊</span><span class="lesson-status new">Новый</span></div>
         <strong>Урок 2: Морское путешествие</strong>
         <span>Море, транспорт, животные, поиск сокровищ, логика и счёт.</span>
+      </button>
+      <button class="lesson-card" data-lesson="3">
+        <div class="lesson-card-top"><span class="lesson-emoji">🦒</span><span class="lesson-status new">Эксперимент</span></div>
+        <strong>Урок 3: Приключение в зоопарке</strong>
+        <span>Фото и факты, память, две зоны, порядок картинок и обведение.</span>
       </button>
     </div>
 
@@ -65,6 +71,7 @@
 </section>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"></script>
+<script src="lesson3.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
