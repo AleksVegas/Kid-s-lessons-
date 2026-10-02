@@ -97,7 +97,7 @@ function resetHome(){try{conn?.close()}catch{};try{peer?.destroy()}catch{};clear
 $$('.backBtn').forEach(b=>b.onclick=resetHome);$('#exitLesson').onclick=resetHome;$('#finishExit').onclick=resetHome;
 
 function freshState(){state={lessonId,started:false,block:0,round:0,done:false,finished:false,updatedAt:Date.now(),roundData:{}}}
-$('.lesson-card').forEach(b=>b.onclick=()=>applyLesson(b.dataset.lesson));
+$$('.lesson-card').forEach(b=>b.onclick=()=>applyLesson(b.dataset.lesson));
 applyLesson('1');
 $('#demoRole').onclick=()=>{role='demo';freshState();enterLesson();};
 $('#parentRole').onclick=startParent;
@@ -165,7 +165,7 @@ function renderChoice(r){
      }else{
        d.selected=null;
        d.errors=(d.errors||0)+1;
-       $('.choice').forEach(x=>x.classList.remove('selected'));
+       $$('.choice').forEach(x=>x.classList.remove('selected'));
        btn.classList.add('wrong');
        state.done=false;
        showFeedback(r.hint&&d.errors>=2?'💡 '+r.hint:'👎 Попробуй ещё','try');
@@ -178,7 +178,7 @@ function renderChoice(r){
 function renderSoon(){}
 
 function renderSort(r){const d=data();d.placed=d.placed||[];stageInner.innerHTML=`<div class="sort-board"><div class="sort-items">${r.items.map(([id,e])=>`<div class="drag-item ${d.placed.includes(id)?'placed':''}" data-id="${id}">${e}</div>`).join('')}</div><div id="dropZone" class="drop-zone"><div>${r.target}</div><div class="drop-label">${r.label}</div></div></div>`;if(role!=='parent')initDrag(r)}
-function cleanupDrag(){dragCleanup.forEach(fn=>{try{fn()}catch{}});dragCleanup=[];$('.sort2-ghost').forEach(x=>x.remove())}
+function cleanupDrag(){dragCleanup.forEach(fn=>{try{fn()}catch{}});dragCleanup=[];$$('.sort2-ghost').forEach(x=>x.remove())}
 function initDrag(r){const zone=$('#dropZone');$$('.drag-item').forEach(item=>{if(item.classList.contains('placed'))return;let dragging=false,startX=0,startY=0,origin=null;const down=e=>{e.preventDefault();dragging=true;item.setPointerCapture?.(e.pointerId);const rc=item.getBoundingClientRect();origin={parent:item.parentNode,next:item.nextSibling,style:item.getAttribute('style')||''};startX=e.clientX-rc.left;startY=e.clientY-rc.top;item.style.position='fixed';item.style.left=(e.clientX-startX)+'px';item.style.top=(e.clientY-startY)+'px';item.style.width=rc.width+'px';item.style.height=rc.height+'px';item.style.zIndex=99;document.body.appendChild(item)};const move=e=>{if(!dragging)return;e.preventDefault();item.style.left=(e.clientX-startX)+'px';item.style.top=(e.clientY-startY)+'px';const z=zone.getBoundingClientRect();zone.classList.toggle('active',e.clientX>=z.left&&e.clientX<=z.right&&e.clientY>=z.top&&e.clientY<=z.bottom)};const up=e=>{if(!dragging)return;dragging=false;const z=zone.getBoundingClientRect(),inside=e.clientX>=z.left&&e.clientX<=z.right&&e.clientY>=z.top&&e.clientY<=z.bottom;const id=item.dataset.id;zone.classList.remove('active');if(origin.next&&origin.next.parentNode===origin.parent)origin.parent.insertBefore(item,origin.next);else origin.parent.appendChild(item);item.setAttribute('style',origin.style);if(inside){if(r.accept.includes(id)){const d=data();if(!d.placed.includes(id))d.placed.push(id);showFeedback('👍 Молодец!','good');if(r.accept.every(x=>d.placed.includes(x)))state.done=true;touchState();render()}else{showFeedback('👎 Не сюда','try')}}};item.addEventListener('pointerdown',down);item.addEventListener('pointermove',move);item.addEventListener('pointerup',up);item.addEventListener('pointercancel',up);dragCleanup.push(()=>{item.removeEventListener('pointerdown',down);item.removeEventListener('pointermove',move);item.removeEventListener('pointerup',up);item.removeEventListener('pointercancel',up)})})}
 
 
@@ -195,11 +195,11 @@ function renderSort2(r){
  const d=data();d.placed=d.placed||{};
  stageInner.innerHTML=`<div class="sort2-board"><div class="sort2-items">${r.items.map(([id,e])=>`<div class="sort2-item ${d.placed[id]?'placed':''}" data-id="${id}">${e}</div>`).join('')}</div><div class="sort2-zones">${r.zones.map(([id,e,l])=>`<div class="sort2-zone" data-zone="${id}"><div>${e}</div><small>${l}</small></div>`).join('')}</div></div>`;
  if(role==='parent')return;
- $('.sort2-item').forEach(el=>{
+ $$('.sort2-item').forEach(el=>{
   if(el.classList.contains('placed'))return;
   let ghost=null,go=false,ox=0,oy=0;
-  const move=e=>{if(!go||!ghost)return;ghost.style.left=(e.clientX-ox)+'px';ghost.style.top=(e.clientY-oy)+'px';$('.sort2-zone').forEach(z=>{const q=z.getBoundingClientRect();z.classList.toggle('hot',e.clientX>=q.left&&e.clientX<=q.right&&e.clientY>=q.top&&e.clientY<=q.bottom)})};
-  const up=e=>{if(!go)return;go=false;let hit=null;$('.sort2-zone').forEach(z=>{const q=z.getBoundingClientRect();if(e.clientX>=q.left&&e.clientX<=q.right&&e.clientY>=q.top&&e.clientY<=q.bottom)hit=z;z.classList.remove('hot')});ghost?.remove();ghost=null;el.style.opacity='';if(hit){const target=r.items.find(v=>v[0]===el.dataset.id)?.[2];if(hit.dataset.zone===target){d.placed[el.dataset.id]=target;showFeedback('👍 Верно!','good');if(r.items.every(v=>d.placed[v[0]]))state.done=true;touchState();render()}else showFeedback('👎 Другая группа','try')}};
+  const move=e=>{if(!go||!ghost)return;ghost.style.left=(e.clientX-ox)+'px';ghost.style.top=(e.clientY-oy)+'px';$$('.sort2-zone').forEach(z=>{const q=z.getBoundingClientRect();z.classList.toggle('hot',e.clientX>=q.left&&e.clientX<=q.right&&e.clientY>=q.top&&e.clientY<=q.bottom)})};
+  const up=e=>{if(!go)return;go=false;let hit=null;$$('.sort2-zone').forEach(z=>{const q=z.getBoundingClientRect();if(e.clientX>=q.left&&e.clientX<=q.right&&e.clientY>=q.top&&e.clientY<=q.bottom)hit=z;z.classList.remove('hot')});ghost?.remove();ghost=null;el.style.opacity='';if(hit){const target=r.items.find(v=>v[0]===el.dataset.id)?.[2];if(hit.dataset.zone===target){d.placed[el.dataset.id]=target;showFeedback('👍 Верно!','good');if(r.items.every(v=>d.placed[v[0]]))state.done=true;touchState();render()}else showFeedback('👎 Другая группа','try')}};
   const down=e=>{e.preventDefault();go=true;const q=el.getBoundingClientRect();ox=e.clientX-q.left;oy=e.clientY-q.top;ghost=el.cloneNode(true);ghost.className='sort2-ghost';Object.assign(ghost.style,{left:q.left+'px',top:q.top+'px',width:q.width+'px',height:q.height+'px'});document.body.appendChild(ghost);el.style.opacity='.25';el.setPointerCapture?.(e.pointerId)};
   el.addEventListener('pointerdown',down);el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
   dragCleanup.push(()=>{el.removeEventListener('pointerdown',down);el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);ghost?.remove()});
@@ -211,14 +211,14 @@ function renderMemory(r){
  const d=data();
  if(!d.cards){d.cards=r.cards.map((e,i)=>({e,i}));for(let i=d.cards.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d.cards[i],d.cards[j]]=[d.cards[j],d.cards[i]]}d.open=[];d.matched=[];touchState()}
  stageInner.innerHTML=`<div class="memory-board">${d.cards.map((c,i)=>`<button class="memory-card ${d.open.includes(i)?'open':''} ${d.matched.includes(i)?'matched':''}" data-i="${i}">${c.e}</button>`).join('')}</div>`;
- $('.memory-card').forEach(btn=>{btn.disabled=role==='parent';if(role!=='parent')btn.onclick=()=>{if(memoryLock)return;const i=+btn.dataset.i;if(d.open.includes(i)||d.matched.includes(i))return;d.open.push(i);touchState();render();if(d.open.length===2){memoryLock=true;const [a,b]=d.open;if(d.cards[a].e===d.cards[b].e)setTimeout(()=>{d.matched.push(a,b);d.open=[];memoryLock=false;if(d.matched.length===d.cards.length)state.done=true;showFeedback('👍 Пара!','good');touchState();render()},350);else setTimeout(()=>{d.open=[];memoryLock=false;showFeedback('Попробуй ещё','try');touchState();render()},650)}}})
+ $$('.memory-card').forEach(btn=>{btn.disabled=role==='parent';if(role!=='parent')btn.onclick=()=>{if(memoryLock)return;const i=+btn.dataset.i;if(d.open.includes(i)||d.matched.includes(i))return;d.open.push(i);touchState();render();if(d.open.length===2){memoryLock=true;const [a,b]=d.open;if(d.cards[a].e===d.cards[b].e)setTimeout(()=>{d.matched.push(a,b);d.open=[];memoryLock=false;if(d.matched.length===d.cards.length)state.done=true;showFeedback('👍 Пара!','good');touchState();render()},350);else setTimeout(()=>{d.open=[];memoryLock=false;showFeedback('Попробуй ещё','try');touchState();render()},650)}}})
 }
 
 function renderOrder(r){
  const d=data();d.slots=d.slots||[];d.pick=d.pick||null;
  stageInner.innerHTML=`<div class="order-board"><div class="order-slots">${[0,1,2].map(i=>`<button class="order-slot ${d.slots[i]?'filled':''}" data-i="${i}">${d.slots[i]?r.items.find(v=>v[0]===d.slots[i])[1]:i+1}</button>`).join('')}</div><div class="order-pool">${r.items.map(([id,e])=>`<button class="order-item ${d.slots.includes(id)?'used':''} ${d.pick===id?'picked':''}" data-id="${id}">${e}</button>`).join('')}</div></div>`;
- $('.order-item').forEach(btn=>{btn.disabled=role==='parent';if(role!=='parent')btn.onclick=()=>{d.pick=btn.dataset.id;touchState();render()}});
- $('.order-slot').forEach(btn=>{btn.disabled=role==='parent';if(role!=='parent')btn.onclick=()=>{const i=+btn.dataset.i;if(!d.pick){if(d.slots[i]){d.slots[i]=null;state.done=false;touchState();render()}else showFeedback('Сначала выбери картинку','try');return}d.slots[i]=d.pick;d.pick=null;if(d.slots.filter(Boolean).length===3){if(d.slots.every((v,i)=>v===r.answer[i])){state.done=true;showFeedback('👍 Правильный порядок!','good')}else{state.done=false;showFeedback('Пока не так. Можно поменять.','try')}}touchState();render()}});
+ $$('.order-item').forEach(btn=>{btn.disabled=role==='parent';if(role!=='parent')btn.onclick=()=>{d.pick=btn.dataset.id;touchState();render()}});
+ $$('.order-slot').forEach(btn=>{btn.disabled=role==='parent';if(role!=='parent')btn.onclick=()=>{const i=+btn.dataset.i;if(!d.pick){if(d.slots[i]){d.slots[i]=null;state.done=false;touchState();render()}else showFeedback('Сначала выбери картинку','try');return}d.slots[i]=d.pick;d.pick=null;if(d.slots.filter(Boolean).length===3){if(d.slots.every((v,i)=>v===r.answer[i])){state.done=true;showFeedback('👍 Правильный порядок!','good')}else{state.done=false;showFeedback('Пока не так. Можно поменять.','try')}}touchState();render()}});
 }
 
 function renderCircle(r){
@@ -314,12 +314,12 @@ function showFinish(){
  $('#stickerGrid').innerHTML=opts.map(s=>`<button class="sticker" data-sticker="${s}">${s}</button>`).join('');
  $('#rewardResult').innerHTML='';$('#finishExit').style.display='none';
  updateAlbum();
- $('.sticker').forEach(b=>{b.onclick=()=>chooseSticker(b.dataset.sticker,b)});
+ $$('.sticker').forEach(b=>{b.onclick=()=>chooseSticker(b.dataset.sticker,b)});
 }
 function getAlbum(){try{const a=JSON.parse(localStorage.getItem('kidsLessonAlbum')||'[]');return Array.isArray(a)?a:[]}catch{return[]}}
 function updateAlbum(){const a=getAlbum();const icons=a.map(x=>typeof x==='string'?x:x?.sticker).filter(Boolean);$('#albumList').textContent=icons.length?icons.join(' '):'Пока пусто'}
 function chooseSticker(s,btn){
- $('.sticker').forEach(x=>x.classList.remove('chosen'));btn.classList.add('chosen');
+ $$('.sticker').forEach(x=>x.classList.remove('chosen'));btn.classList.add('chosen');
  let a=getAlbum();
  const already=a.some(x=>typeof x==='object'&&String(x.lessonId)===String(lessonId));
  if(!already)a.push({lessonId:String(lessonId),sticker:s});
