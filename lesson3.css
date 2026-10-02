@@ -1,0 +1,63 @@
+
+/* Lesson 3 experimental mechanics */
+.learn-card{height:100%;display:grid;grid-template-columns:minmax(0,1fr);padding:12px;background:linear-gradient(135deg,#fffdf9,#f6faf7)}
+.learn-child-view,.learn-parent-view{height:100%;border:1px solid var(--line);border-radius:22px;background:#fff;overflow:hidden;min-width:0}
+.learn-child-view{display:grid;grid-template-rows:minmax(0,1fr) auto}
+.learn-photo{position:relative;min-height:0;background:#eef2ee;overflow:hidden}
+.learn-photo img{width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#eef2ee}
+.learn-fallback{display:none;position:absolute;inset:0;place-items:center;font-size:110px;background:#f3f6f4}
+.learn-name{padding:9px 14px 11px;text-align:center;font-size:clamp(30px,5vw,48px);font-weight:950;letter-spacing:.01em;background:#fff}
+.learn-name .first{font-size:1.16em;text-shadow:0 1px 0 #fff}
+.learn-parent-view{padding:18px;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.learn-parent-head{display:flex;gap:12px;align-items:center}
+.learn-parent-thumb{width:88px;height:70px;border-radius:14px;object-fit:contain;background:#eef2ee;border:1px solid var(--line)}
+.learn-parent-head strong{font-size:22px}
+.learn-parent-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:900}
+.learn-row{padding:11px 13px;border-radius:15px;background:#f7faf8;border:1px solid #e7eeea}
+.learn-row strong{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#4d6c5d;margin-bottom:4px}
+.learn-row span{font-size:16px;line-height:1.38;font-weight:650}
+.learn-row.hint{background:#fff8e8;border-color:#f0dfb8}
+.learn-row.fact{background:#eef6f1;border-color:#d4e6da}
+.learn-demo{height:100%;display:grid;grid-template-columns:1.05fr .95fr;gap:12px;padding:10px}
+
+.sort2-board{height:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sort2-items{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-content:center}
+.sort2-item{height:96px;border:2px solid #e4ebe7;border-radius:20px;background:#fbfdfc;display:grid;place-items:center;font-size:56px;touch-action:none;user-select:none}
+.sort2-item.placed{opacity:.15;pointer-events:none}
+.sort2-ghost{position:fixed;z-index:9999;border:2px solid #cfdad4;border-radius:20px;background:#fff;display:grid;place-items:center;font-size:56px;pointer-events:none;box-shadow:0 12px 30px #0002;opacity:.96}
+.sort2-zones{display:grid;grid-template-rows:1fr 1fr;gap:10px}
+.sort2-zone{border:4px dashed #b7c7be;border-radius:24px;background:#eef5ef;display:grid;place-items:center;align-content:center;font-size:58px}
+.sort2-zone small{font-size:14px;font-weight:800;color:#476555}
+.sort2-zone.hot{border-color:var(--accent);background:#e4f0e8}
+
+.memory-board{height:100%;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:10px;padding:8px 14%}
+.memory-card{border:2px solid #e4ebe7;border-radius:20px;background:#f6faf7;font-size:0;position:relative}
+.memory-card:after{content:'❓';font-size:48px;position:absolute;inset:0;display:grid;place-items:center}
+.memory-card.open,.memory-card.matched{font-size:60px;background:#fff}
+.memory-card.open:after,.memory-card.matched:after{display:none}
+.memory-card.matched{border-color:#67a97c;background:#eaf7ee}
+
+.order-board{height:100%;display:grid;grid-template-rows:1fr 108px;gap:10px}
+.order-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.order-slot{border:3px dashed #bdc9c2;border-radius:20px;background:#f7faf8;display:grid;place-items:center;font-size:56px}
+.order-slot.filled{border-style:solid;border-color:#91b9a4}
+.order-pool{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.order-item{border:2px solid #e4ebe7;border-radius:18px;background:#fff;font-size:50px}
+.order-item.used{opacity:.15;pointer-events:none}
+.order-item.picked{border-color:var(--accent);background:#e8f4ed}
+
+.circle-board{height:100%;position:relative;background:#fffdf8}
+.circle-item{position:absolute;width:104px;height:104px;border-radius:24px;border:2px solid #e6ebe8;background:#fff;display:grid;place-items:center;font-size:62px;transform:translate(-50%,-50%);pointer-events:none}
+.circle-item.done{outline:8px solid #4c8a6c;outline-offset:4px;background:#eff8f2}
+.circle-note{position:absolute;left:10px;bottom:8px;color:var(--muted);font-size:12px;background:#fff;border:1px solid var(--line);padding:6px 9px;border-radius:10px;z-index:3}
+
+@media(orientation:landscape) and (max-height:620px){
+ .learn-card{padding:6px}.learn-demo{padding:5px;gap:7px}.learn-parent-view{padding:7px 9px;gap:5px}
+ .learn-parent-head{gap:7px}.learn-parent-thumb{width:62px;height:46px}.learn-parent-head strong{font-size:17px}
+ .learn-row{padding:5px 7px}.learn-row strong{font-size:9px;margin-bottom:1px}.learn-row span{font-size:12px;line-height:1.25}
+ .learn-name{padding:4px 8px;font-size:28px}
+ .sort2-board{gap:7px}.sort2-items{gap:5px}.sort2-item{height:68px;font-size:44px}.sort2-zone{font-size:44px}.sort2-zone small{font-size:11px}
+ .memory-board{padding:5px 18%;gap:6px}.memory-card.open,.memory-card.matched{font-size:46px}.memory-card:after{font-size:38px}
+ .order-board{grid-template-rows:1fr 76px;gap:6px}.order-slot{font-size:44px}.order-item{font-size:40px}
+ .circle-item{width:82px;height:82px;font-size:50px}
+}
