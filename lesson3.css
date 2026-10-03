@@ -61,3 +61,73 @@
  .order-board{grid-template-rows:1fr 76px;gap:6px}.order-slot{font-size:44px}.order-item{font-size:40px}
  .circle-item{width:82px;height:82px;font-size:50px}
 }
+
+
+/* v3.8 production: tested landscape roles, thinking lock, parent mirrors */
+.demo-view-switch{display:none;gap:4px;margin-left:auto}
+.demo-view-btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:850}
+.demo-view-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.retry-choice{display:none;border:1px solid #ead59c;border-radius:14px;padding:10px 13px;font-weight:850;background:#fff1cf;color:#76591c}
+.choice.used-wrong{opacity:.34;filter:grayscale(.7);border-color:#d8d8d8!important;background:#f1f1f1!important;pointer-events:none}
+.choice-wait-overlay{position:absolute;z-index:45;inset:0;background:rgba(255,253,249,.86);display:grid;place-items:center;text-align:center;padding:24px}
+.choice-wait-overlay>div{background:#fff;border:2px solid #e7d6a3;border-radius:22px;padding:18px 24px;box-shadow:0 12px 30px rgba(0,0,0,.06);font-size:20px;font-weight:900}
+.choice-wait-overlay small{display:block;margin-top:6px;color:var(--muted);font-size:13px}
+.drop-zone{position:relative}
+.drop-placed,.sort2-zone-placed{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;min-height:28px;margin-top:3px}
+.drop-placed span,.sort2-zone-placed span{font-size:28px;line-height:1}
+.parent-mirror .sort2-item{pointer-events:none}
+.parent-mirror .sort2-zone{border-style:solid}
+.learn-single{grid-template-columns:1fr}
+.learn-parent-view{justify-content:flex-start}
+.circle-note{display:none!important}
+
+@media(orientation:landscape) and (max-height:620px){
+  body.lesson3-active .app{height:100dvh;min-height:0;overflow:hidden}
+  body.lesson3-active .lesson-shell{height:calc(100dvh - 8px);min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  body.lesson3-active .lesson-top{flex:0 0 28px}
+  body.lesson3-active .progress-wrap{flex:0 0 10px}
+  body.lesson3-active .task-card{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  body.lesson3-active .task-head{flex:0 0 44px}
+  body.lesson3-active .stage{height:auto!important;min-height:0!important;flex:1 1 auto}
+  body.lesson3-active .controls{flex:0 0 auto;min-height:38px;margin-top:3px}
+  body.lesson3-active .demo-view-switch{gap:3px}
+  body.lesson3-active .demo-view-btn{padding:3px 7px;font-size:10px}
+  body.lesson3-active .retry-choice{padding:7px 9px;font-size:11px;white-space:nowrap}
+
+  body.lesson3-active.view-child .learn-card{padding:5px}
+  body.lesson3-active.view-child .learn-child-view{
+    height:100%;min-height:0;display:grid;
+    grid-template-columns:minmax(0,2.15fr) minmax(190px,.85fr);grid-template-rows:1fr;
+  }
+  body.lesson3-active.view-child .learn-photo{min-width:0;min-height:0;height:100%}
+  body.lesson3-active.view-child .learn-photo img{width:100%;height:100%;object-fit:contain;object-position:center}
+  body.lesson3-active.view-child .learn-name{
+    display:flex;align-items:center;justify-content:center;min-width:0;height:100%;
+    padding:8px 12px;border-left:1px solid #edf1ee;
+    font-size:clamp(28px,4vw,48px);line-height:1;white-space:nowrap;overflow:hidden;
+  }
+  body.lesson3-active.view-child .learn-name .first{flex:0 0 auto;font-size:1.14em;line-height:1}
+
+  body.lesson3-active.view-parent .learn-card{padding:5px;min-height:0}
+  body.lesson3-active.view-parent .learn-parent-view{
+    min-height:0;height:100%;overflow:hidden;display:grid;
+    grid-template-columns:minmax(0,1.28fr) minmax(0,.88fr) minmax(0,1.28fr);
+    grid-template-rows:auto minmax(0,1fr);gap:5px 6px;padding:6px 8px;align-content:stretch;
+  }
+  body.lesson3-active.view-parent .learn-parent-kicker{grid-column:1/-1;font-size:10px;line-height:1.1;margin:0}
+  body.lesson3-active.view-parent .learn-row{min-width:0;min-height:0;margin:0;padding:6px 7px;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden}
+  body.lesson3-active.view-parent .learn-row strong{font-size:8px;line-height:1.05;margin-bottom:3px}
+  body.lesson3-active.view-parent .learn-row span{font-size:11px;line-height:1.22;overflow-wrap:anywhere}
+
+  body.lesson3-active.view-parent .match-board{min-height:0;height:100%;overflow:hidden;gap:34px;padding:4px 10% 5px}
+  body.lesson3-active.view-parent .match-col{min-height:0;overflow:hidden;grid-template-rows:repeat(3,minmax(0,1fr));gap:5px}
+  body.lesson3-active.view-parent .match-item{min-height:0!important;height:100%!important;font-size:38px!important;padding:0!important;overflow:hidden}
+  body.lesson3-active.view-parent .sort2-board{min-height:0;height:100%;overflow:hidden;gap:8px}
+  body.lesson3-active.view-parent .sort2-items{min-height:0;overflow:hidden;gap:5px;align-content:stretch;grid-template-rows:repeat(2,minmax(0,1fr))}
+  body.lesson3-active.view-parent .sort2-item{min-height:0;height:auto;font-size:34px;border-radius:15px}
+  body.lesson3-active.view-parent .sort2-zones{min-height:0;overflow:hidden;gap:6px;grid-template-rows:repeat(2,minmax(0,1fr))}
+  body.lesson3-active.view-parent .sort2-zone{min-height:0;overflow:hidden;font-size:32px;border-width:3px;border-radius:18px;padding:3px}
+  body.lesson3-active.view-parent .sort2-zone small{font-size:10px;line-height:1.05}
+  body.lesson3-active.view-parent .sort2-zone-placed{min-height:18px;margin-top:1px;gap:2px;overflow:hidden}
+  body.lesson3-active.view-parent .sort2-zone-placed span{font-size:18px;line-height:1}
+}
