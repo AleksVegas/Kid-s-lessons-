@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f5efe5">
 <title>Папа + Миша — интерактивные уроки</title>
 <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="lesson3.css?v=3.3.2">
+<link rel="stylesheet" href="lesson3.css?v=3.8.0">
 </head>
 <body>
 <div class="rotate-overlay"><div class="rotate-card"><div class="rotate-icon">📱↻</div><h2>Поверни телефон</h2><p>Это занятие удобнее проходить в альбомном режиме.</p></div></div>
@@ -56,6 +56,10 @@
  <div class="lesson-shell">
   <div class="lesson-top">
     <div><div class="lesson-title" id="lessonHeaderTitle">Урок 1 • Лесное приключение</div><div class="lesson-meta"><div id="liveStatus" class="status online"><span class="dot"></span><span>Тестовый режим</span></div><span id="netNote" class="net-note"></span></div></div>
+    <div id="demoViewSwitch" class="demo-view-switch">
+      <button id="demoChildView" class="demo-view-btn active">👦 Ребёнок</button>
+      <button id="demoParentView" class="demo-view-btn">🧑 Взрослый</button>
+    </div>
     <button id="exitLesson" class="ghost" style="padding:9px 13px">Выйти</button>
   </div>
   <div class="progress-wrap"><div class="progress-top"><div id="progressTitle" class="progress-title">Блок 1 из 5</div><div id="progressRound" class="progress-round">Раунд 1 из 4</div></div><div id="blocks" class="blocks"></div></div>
@@ -64,14 +68,14 @@
     <div class="task-head"><div id="taskIcon" class="task-icon">👀</div><div class="task-copy"><div id="step" class="step"></div><h2 id="taskTitle"></h2><p id="taskSubtitle"></p></div></div>
     <div id="stage" class="stage"><div id="stageInner" class="stage-inner"></div><canvas id="canvas" class="draw-canvas"></canvas><div id="pointerLayer"></div><div id="roundDone" class="round-done"><span>Готово ✓</span><button id="continueRound" class="continue-btn">Продолжить →</button></div></div>
   </div>
-  <div id="controls" class="controls"><div class="left"><button id="prevBtn" class="ghost">← Назад</button><button id="clearBtn" class="secondary">Очистить</button><button id="forceNextBtn" class="ghost">Пропустить</button></div><div class="right"><button id="praiseBtn" class="praise">👍 Молодец</button><button id="skipBtn" class="primary" disabled>Дальше →</button></div></div>
+  <div id="controls" class="controls"><div class="left"><button id="prevBtn" class="ghost">← Назад</button><button id="clearBtn" class="secondary">Очистить</button><button id="forceNextBtn" class="ghost">Пропустить</button></div><div class="right"><button id="retryChoiceBtn" class="retry-choice">Дать ещё попытку</button><button id="praiseBtn" class="praise">👍 Молодец</button><button id="skipBtn" class="primary" disabled>Дальше →</button></div></div>
   <div id="childTools" class="child-tools"><button id="childClear" class="secondary">Стереть рисунок</button></div>
   <div id="finishCard" class="finish-card"><div class="finish-hero">🎉</div><h2>Урок закончен!</h2><p>Ты прошёл весь большой урок! Выбери одну наклейку в свой альбом.</p><div id="stickerGrid" class="sticker-grid"></div><div id="rewardResult"></div><div class="album"><strong>Альбом на этом устройстве</strong><div id="albumList" class="album-list">—</div></div><button id="finishExit" class="primary" style="margin-top:18px;display:none">Закончить занятие</button></div>
  </div>
 </section>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"></script>
-<script src="lesson3.js?v=3.3.2"></script>
-<script src="app.js?v=3.3.2"></script>
+<script src="lesson3.js?v=3.8.0"></script>
+<script src="app.js?v=3.8.0"></script>
 </body>
 </html>
