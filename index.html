@@ -8,15 +8,16 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="lesson3.css?v=3.8.0">
 <link rel="stylesheet" href="lesson4.css?v=4.0.0">
+<link rel="stylesheet" href="lesson5.css?v=5.0.0">
 </head>
 <body>
 <div class="rotate-overlay"><div class="rotate-card"><div class="rotate-icon">📱↻</div><h2>Поверни телефон</h2><p>Это занятие удобнее проходить в альбомном режиме.</p></div></div>
 <div class="app">
 <section id="startScreen" class="panel">
-  <div class="brand"><div class="brand-badge">✏️</div><div><strong>Папа + Миша</strong><div class="muted" style="font-size:13px">Интерактивные занятия • 4 урока</div></div></div>
+  <div class="brand"><div class="brand-badge">✏️</div><div><strong>Папа + Миша</strong><div class="muted" style="font-size:13px">Интерактивные занятия • 5 уроков</div></div></div>
   <div id="roleSelect">
     <h1>Выбери урок</h1>
-    <p class="lead muted">Уроки 1–2 — рабочая база. Уроки 3–4 используют обучающие карточки с фото и отполированный набор интерактивных механик.</p>
+    <p class="lead muted">Уроки 1–2 — рабочая база. Уроки 3–4 закрепляют механику, а Урок 5 добавляет новые задания на память и размер.</p>
 
     <div class="lesson-grid">
       <button class="lesson-card selected" data-lesson="1">
@@ -38,6 +39,11 @@
         <div class="lesson-card-top"><span class="lesson-emoji">🚜</span><span class="lesson-status new">Новый</span></div>
         <strong>Урок 4: День на ферме</strong>
         <span>Корова, курица и лошадь: факты, сортировка, память, пары, логика и дорожка.</span>
+      </button>
+      <button class="lesson-card" data-lesson="5">
+        <div class="lesson-card-top"><span class="lesson-emoji">🚒</span><span class="lesson-status new">Эксперимент</span></div>
+        <strong>Урок 5: Город и транспорт</strong>
+        <span>Фото и факты, «Что исчезло?», размер, дорожные задания, память и логика.</span>
       </button>
     </div>
 
@@ -74,7 +80,7 @@
     <div class="task-head"><div id="taskIcon" class="task-icon">👀</div><div class="task-copy"><div id="step" class="step"></div><h2 id="taskTitle"></h2><p id="taskSubtitle"></p></div></div>
     <div id="stage" class="stage"><div id="stageInner" class="stage-inner"></div><canvas id="canvas" class="draw-canvas"></canvas><div id="pointerLayer"></div><div id="roundDone" class="round-done"><span>Готово ✓</span><button id="continueRound" class="continue-btn">Продолжить →</button></div></div>
   </div>
-  <div id="controls" class="controls"><div class="left"><button id="prevBtn" class="ghost">← Назад</button><button id="clearBtn" class="secondary">Очистить</button><button id="forceNextBtn" class="ghost">Пропустить</button></div><div class="right"><button id="retryChoiceBtn" class="retry-choice">Дать ещё попытку</button><button id="praiseBtn" class="praise">👍 Молодец</button><button id="skipBtn" class="primary" disabled>Дальше →</button></div></div>
+  <div id="controls" class="controls"><div class="left"><button id="prevBtn" class="ghost">← Назад</button><button id="clearBtn" class="secondary">Очистить</button><button id="forceNextBtn" class="ghost">Пропустить</button></div><div class="right"><button id="retryChoiceBtn" class="retry-choice">Дать ещё попытку</button><button id="hideMissingBtn" class="retry-choice">Спрятать одну</button><button id="praiseBtn" class="praise">👍 Молодец</button><button id="skipBtn" class="primary" disabled>Дальше →</button></div></div>
   <div id="childTools" class="child-tools"><button id="childClear" class="secondary">Стереть рисунок</button></div>
   <div id="finishCard" class="finish-card"><div class="finish-hero">🎉</div><h2>Урок закончен!</h2><p>Ты прошёл весь большой урок! Выбери одну наклейку в свой альбом.</p><div id="stickerGrid" class="sticker-grid"></div><div id="rewardResult"></div><div class="album"><strong>Альбом на этом устройстве</strong><div id="albumList" class="album-list">—</div></div><button id="finishExit" class="primary" style="margin-top:18px;display:none">Закончить занятие</button></div>
  </div>
@@ -83,6 +89,7 @@
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"></script>
 <script src="lesson3.js?v=3.8.0"></script>
 <script src="lesson4.js?v=4.0.0"></script>
-<script src="app.js?v=4.0.0"></script>
+<script src="lesson5.js?v=5.0.0"></script>
+<script src="app.js?v=5.0.0"></script>
 </body>
 </html>
