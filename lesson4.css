@@ -1,0 +1,21 @@
+/* Lesson 4 custom visuals; mechanics/layout reuse lesson3.css */
+.white-yarn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:clamp(42px,4.8vw,56px);
+  line-height:1;
+  filter:grayscale(1) brightness(2.05) contrast(.84);
+  text-shadow:0 1px 0 #ffffff,0 0 1px #b7bfba;
+  opacity:.96;
+  transform:translateY(1px);
+}
+.corn-kernel{
+  width:clamp(50px,6vw,72px);
+  height:clamp(50px,6vw,72px);
+  display:inline-grid;
+  place-items:center;
+}
+.corn-kernel svg{width:100%;height:100%;display:block}
+.corn-kernel path:first-child{fill:#f3b51b;stroke:#c98512;stroke-width:4}
+.corn-kernel .kernel-hi{fill:#ffd95b;stroke:none}

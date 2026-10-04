@@ -77,7 +77,8 @@ const lesson2Blocks=[
 const lessons={
  '1':{id:'1',title:'Урок 1: Лесное приключение',short:'Урок 1 • Лесное приключение',blocks:lesson1Blocks,stickers:['⭐','🚀','🦖']},
  '2':{id:'2',title:'Урок 2: Морское путешествие',short:'Урок 2 • Морское путешествие',blocks:lesson2Blocks,stickers:['🐠','🐢','⚓']},
- '3':{id:'3',title:'Урок 3: Приключение в зоопарке',short:'Урок 3 • Приключение в зоопарке',blocks:(window.lesson3Blocks||[]),stickers:['🦁','🐼','🦒']}
+ '3':{id:'3',title:'Урок 3: Приключение в зоопарке',short:'Урок 3 • Приключение в зоопарке',blocks:(window.lesson3Blocks||[]),stickers:['🦁','🐼','🦒']},
+ '4':{id:'4',title:'Урок 4: День на ферме',short:'Урок 4 • День на ферме',blocks:(window.lesson4Blocks||[]),stickers:['🐄','🐔','🚜']}
 };
 let lessonId='1',blocks=lesson1Blocks;
 function applyLesson(id){
@@ -87,7 +88,7 @@ function applyLesson(id){
  if(selectedLessonName)selectedLessonName.textContent=lessons[lessonId].title;
  if(selectedLessonSetup)selectedLessonSetup.textContent=lessons[lessonId].title;
  if(lessonHeaderTitle)lessonHeaderTitle.textContent=lessons[lessonId].short;
- document.body.classList.toggle('lesson3-active',lessonId==='3');
+ document.body.classList.toggle('lesson3-active',lessonId==='3'||lessonId==='4');
 }
 
 
@@ -301,7 +302,7 @@ function pointFromEvent(e){const r=stage.getBoundingClientRect();return{x:Math.m
 function compressStroke(st,maxPoints=70){if(!st||st.length<=maxPoints)return st?st.slice():[];const step=(st.length-1)/(maxPoints-1),out=[];for(let i=0;i<maxPoints;i++)out.push(st[Math.min(st.length-1,Math.round(i*step))]);return out}
 canvas.addEventListener('pointerdown',e=>{const type=currentRound()?.type;if((type!=='trace'&&type!=='circle')||viewRole()==='parent')return;e.preventDefault();drawActive=true;canvas.setPointerCapture?.(e.pointerId);currentStroke=[pointFromEvent(e)];data().strokes=data().strokes||[];data().strokes.push(currentStroke);drawAll(data().strokes)});
 canvas.addEventListener('pointermove',e=>{if(!drawActive)return;e.preventDefault();currentStroke.push(pointFromEvent(e));drawAll(data().strokes)});
-function endStroke(){if(!drawActive)return;drawActive=false;if(currentStroke&&currentStroke.length){const type=currentRound()?.type,d=data(),compact=compressStroke(currentStroke);d.strokes[d.strokes.length-1]=compact;d.strokes=d.strokes.slice(-3);send({type:'strokeComplete',mode:type,points:compact,key:key()});if(type==='trace'){const a=compact[0],b=compact[compact.length-1];if(Math.hypot(a.x-.12,a.y-.76)<.18&&Math.hypot(b.x-.87,b.y-.23)<.20){state.done=true;showFeedback('👍 Молодец!','good')}else{state.done=false;showFeedback('👎 Попробуй ещё','try')}}else if(type==='circle'){const r=currentRound(),a=compact[0],z=compact[compact.length-1],closed=Math.hypot(a.x-z.x,a.y-z.y)<.22,minx=Math.min(...compact.map(p=>p.x)),maxx=Math.max(...compact.map(p=>p.x)),miny=Math.min(...compact.map(p=>p.y)),maxy=Math.max(...compact.map(p=>p.y));let hit=null;if(closed&&(maxx-minx)>.08&&(maxy-miny)>.10){for(const [id,_e,x,y] of r.items){const p={x:x/100,y:y/100};if(pointInPoly(p,compact)||(p.x>minx&&p.x<maxx&&p.y>miny&&p.y<maxy)){hit=id;break}}}d.circled=d.circled||[];if(hit&&r.targets.includes(hit)){if(!d.circled.includes(hit))d.circled.push(hit);state.done=r.targets.every(q=>d.circled.includes(q));showFeedback('👍 Обведено!','good')}else if(hit){state.done=false;showFeedback('👎 Нужны две одинаковые лисички','try')}else{state.done=false;showFeedback('Замкни круг вокруг картинки','try')}}touchState();render()}currentStroke=null}
+function endStroke(){if(!drawActive)return;drawActive=false;if(currentStroke&&currentStroke.length){const type=currentRound()?.type,d=data(),compact=compressStroke(currentStroke);d.strokes[d.strokes.length-1]=compact;d.strokes=d.strokes.slice(-3);send({type:'strokeComplete',mode:type,points:compact,key:key()});if(type==='trace'){const a=compact[0],b=compact[compact.length-1];if(Math.hypot(a.x-.12,a.y-.76)<.18&&Math.hypot(b.x-.87,b.y-.23)<.20){state.done=true;showFeedback('👍 Молодец!','good')}else{state.done=false;showFeedback('👎 Попробуй ещё','try')}}else if(type==='circle'){const r=currentRound(),a=compact[0],z=compact[compact.length-1],closed=Math.hypot(a.x-z.x,a.y-z.y)<.22,minx=Math.min(...compact.map(p=>p.x)),maxx=Math.max(...compact.map(p=>p.x)),miny=Math.min(...compact.map(p=>p.y)),maxy=Math.max(...compact.map(p=>p.y));let hit=null;if(closed&&(maxx-minx)>.08&&(maxy-miny)>.10){for(const [id,_e,x,y] of r.items){const p={x:x/100,y:y/100};if(pointInPoly(p,compact)||(p.x>minx&&p.x<maxx&&p.y>miny&&p.y<maxy)){hit=id;break}}}d.circled=d.circled||[];if(hit&&r.targets.includes(hit)){if(!d.circled.includes(hit))d.circled.push(hit);state.done=r.targets.every(q=>d.circled.includes(q));showFeedback('👍 Обведено!','good')}else if(hit){state.done=false;showFeedback('👎 Нужны две одинаковые картинки','try')}else{state.done=false;showFeedback('Замкни круг вокруг картинки','try')}}touchState();render()}currentStroke=null}
 canvas.addEventListener('pointerup',endStroke);canvas.addEventListener('pointercancel',endStroke);
 function receiveStrokeComplete(m){if(m.key!==key()||!Array.isArray(m.points))return;const type=currentRound()?.type;if(type!=='trace'&&type!=='circle')return;const d=data();d.strokes=d.strokes||[];d.strokes.push(m.points);d.strokes=d.strokes.slice(-3);drawAll(d.strokes)}
 function clearTrace(){const type=currentRound()?.type;if(type!=='trace'&&type!=='circle')return;data().strokes=[];if(type==='circle')data().circled=[];state.done=false;touchState();render()}
