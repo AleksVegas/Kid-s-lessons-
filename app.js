@@ -6,7 +6,7 @@ const stage=$('#stage'),stageInner=$('#stageInner'),canvas=$('#canvas'),ctx=canv
 const feedback=$('#feedback'),roundDone=$('#roundDone'),continueRound=$('#continueRound');
 const progressTitle=$('#progressTitle'),progressRound=$('#progressRound'),blocksEl=$('#blocks'),taskIcon=$('#taskIcon'),step=$('#step'),taskTitle=$('#taskTitle'),taskSubtitle=$('#taskSubtitle');
 const controls=$('#controls'),childTools=$('#childTools'),liveStatus=$('#liveStatus'),netNote=$('#netNote'),lessonHeaderTitle=$('#lessonHeaderTitle'),selectedLessonName=$('#selectedLessonName'),selectedLessonSetup=$('#selectedLessonSetup');
-const demoViewSwitch=$('#demoViewSwitch'),demoChildView=$('#demoChildView'),demoParentView=$('#demoParentView'),retryChoiceBtn=$('#retryChoiceBtn');
+const demoViewSwitch=$('#demoViewSwitch'),demoChildView=$('#demoChildView'),demoParentView=$('#demoParentView'),retryChoiceBtn=$('#retryChoiceBtn'),hideMissingBtn=$('#hideMissingBtn');
 let role='demo', room='', peer=null, conn=null, reconnectTimer=null, heartbeatTimer=null, connected=false;
 let demoView='child',choiceLock=false,choiceUnlockGuardUntil=0,choiceUnlockGuardKey='';
 let drawActive=false,currentStroke=null,remoteStroke=null,lastPointSent=0,feedbackTimer=null,dragCleanup=[];
@@ -78,7 +78,8 @@ const lessons={
  '1':{id:'1',title:'Урок 1: Лесное приключение',short:'Урок 1 • Лесное приключение',blocks:lesson1Blocks,stickers:['⭐','🚀','🦖']},
  '2':{id:'2',title:'Урок 2: Морское путешествие',short:'Урок 2 • Морское путешествие',blocks:lesson2Blocks,stickers:['🐠','🐢','⚓']},
  '3':{id:'3',title:'Урок 3: Приключение в зоопарке',short:'Урок 3 • Приключение в зоопарке',blocks:(window.lesson3Blocks||[]),stickers:['🦁','🐼','🦒']},
- '4':{id:'4',title:'Урок 4: День на ферме',short:'Урок 4 • День на ферме',blocks:(window.lesson4Blocks||[]),stickers:['🐄','🐔','🚜']}
+ '4':{id:'4',title:'Урок 4: День на ферме',short:'Урок 4 • День на ферме',blocks:(window.lesson4Blocks||[]),stickers:['🐄','🐔','🚜']},
+ '5':{id:'5',title:'Урок 5: Город и транспорт',short:'Урок 5 • Город и транспорт',blocks:(window.lesson5Blocks||[]),stickers:['🚒','🚦','🏙️']}
 };
 let lessonId='1',blocks=lesson1Blocks;
 function applyLesson(id){
@@ -88,7 +89,8 @@ function applyLesson(id){
  if(selectedLessonName)selectedLessonName.textContent=lessons[lessonId].title;
  if(selectedLessonSetup)selectedLessonSetup.textContent=lessons[lessonId].title;
  if(lessonHeaderTitle)lessonHeaderTitle.textContent=lessons[lessonId].short;
- document.body.classList.toggle('lesson3-active',lessonId==='3'||lessonId==='4');
+ document.body.classList.toggle('lesson3-active',lessonId==='3'||lessonId==='4'||lessonId==='5');
+ document.body.classList.toggle('lesson5-active',lessonId==='5');
 }
 
 
@@ -112,7 +114,7 @@ function data(){if(!state.roundData[key()]) state.roundData[key()]={}; return st
 function touchState(){state.updatedAt=Date.now();updateNextControls();if(role==='child'&&state.done)send({type:'taskDone',key:key(),roundData:data()});sendState()}
 function setStatus(el,kind,text){el.className='status '+kind;el.innerHTML='<span class="dot"></span><span>'+text+'</span>'}
 function showSetup(which){roleSelect.style.display='none';parentSetup.classList.toggle('active',which==='parent');childSetup.classList.toggle('active',which==='child')}
-function resetHome(){try{conn?.close()}catch{};try{peer?.destroy()}catch{};clearTimeout(reconnectTimer);clearInterval(heartbeatTimer);peer=conn=null;connected=false;roleSelect.style.display='block';parentSetup.classList.remove('active');childSetup.classList.remove('active');startScreen.style.display='block';lessonScreen.classList.remove('active');document.body.classList.remove('lesson-open','needs-landscape','child-role','view-child','view-parent','lesson3-active');}
+function resetHome(){try{conn?.close()}catch{};try{peer?.destroy()}catch{};clearTimeout(reconnectTimer);clearInterval(heartbeatTimer);peer=conn=null;connected=false;roleSelect.style.display='block';parentSetup.classList.remove('active');childSetup.classList.remove('active');startScreen.style.display='block';lessonScreen.classList.remove('active');document.body.classList.remove('lesson-open','needs-landscape','child-role','view-child','view-parent','lesson3-active','lesson5-active');}
 $$('.backBtn').forEach(b=>b.onclick=resetHome);$('#exitLesson').onclick=resetHome;$('#finishExit').onclick=resetHome;
 
 function freshState(){state={lessonId,started:false,block:0,round:0,done:false,finished:false,updatedAt:Date.now(),roundData:{}}}
@@ -184,7 +186,7 @@ function enterLesson(){
 }
 function currentRound(){return blocks[state.block]?.rounds[state.round]}
 function render(){cleanupDrag();if(state.finished){showFinish();return}$('#taskCard').classList.remove('hidden');$('#finishCard').classList.remove('active');const b=blocks[state.block],r=currentRound();if(!b||!r){finishLesson();return}progressTitle.textContent=`Блок ${state.block+1} из ${blocks.length} • ${b.name}`;progressRound.textContent=`Раунд ${state.round+1} из ${b.rounds.length}`;step.textContent=`${b.name} · ${state.round+1}/${b.rounds.length}`;taskIcon.textContent=b.icon;taskTitle.textContent=r.title;taskSubtitle.textContent=r.subtitle;blocksEl.innerHTML=blocks.map((_,i)=>`<div class="block-dot ${i<state.block?'done':i===state.block?'active':''}"></div>`).join('');stageInner.innerHTML='';pointerLayer.innerHTML='';canvas.style.pointerEvents='none';canvas.style.display='none';roundDone.classList.remove('show');continueRound.textContent=(state.block===blocks.length-1&&state.round===b.rounds.length-1)?'Завершить урок 🎉':(state.round===b.rounds.length-1?'Следующий блок →':'Продолжить →');$('#clearBtn').style.display=(r.type==='trace'||r.type==='circle')?'inline-block':'none';$('#childClear').style.display=(r.type==='trace'||r.type==='circle')?'inline-block':'none';$('#prevBtn').disabled=state.block===0&&state.round===0;renderRound(r);applyViewMode();updateNextControls();}
-function renderRound(r){if(r.type==='choice')renderChoice(r);else if(r.type==='sort')renderSort(r);else if(r.type==='trace')renderTrace(r);else if(r.type==='collect')renderCollect(r);else if(r.type==='match')renderMatch(r);else if(r.type==='learn')renderLearn(r);else if(r.type==='sort2')renderSort2(r);else if(r.type==='memory')renderMemory(r);else if(r.type==='order')renderOrder(r);else if(r.type==='circle')renderCircle(r)}
+function renderRound(r){if(r.type==='choice')renderChoice(r);else if(r.type==='sort')renderSort(r);else if(r.type==='trace')renderTrace(r);else if(r.type==='collect')renderCollect(r);else if(r.type==='match')renderMatch(r);else if(r.type==='learn')renderLearn(r);else if(r.type==='sort2')renderSort2(r);else if(r.type==='memory')renderMemory(r);else if(r.type==='order')renderOrder(r);else if(r.type==='missing')renderMissing(r);else if(r.type==='sizeorder')renderSizeOrder(r);else if(r.type==='circle')renderCircle(r)}
 function showFeedback(text,kind='good'){clearTimeout(feedbackTimer);feedback.textContent=text;feedback.className='feedback show '+kind;feedbackTimer=setTimeout(()=>feedback.className='feedback',1400)}
 function showPointer(x,y){const p=document.createElement('div');p.className='remote-pointer';p.style.left=(x*100)+'%';p.style.top=(y*100)+'%';pointerLayer.appendChild(p);setTimeout(()=>p.remove(),600)}
 function sendPointerFrom(el){const r=el.getBoundingClientRect(),s=stage.getBoundingClientRect();send({type:'pointer',x:(r.left+r.width/2-s.left)/s.width,y:(r.top+r.height/2-s.top)/s.height})}
@@ -248,9 +250,11 @@ function initDrag(r){const zone=$('#dropZone');$$('.drag-item').forEach(item=>{i
 
 
 function renderLearn(r){
- const v=viewRole(),rest=r.name.slice(1);
- const child=`<section class="learn-child-view"><div class="learn-photo"><img src="${r.photo}" alt="${r.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="learn-fallback">${r.fallback}</div></div><div class="learn-name"><span class="first" style="color:${r.color}">${r.first}</span>${rest}</div></section>`;
- const adult=`<section class="learn-parent-view"><div class="learn-parent-kicker">Экран взрослого • что сказать и спросить</div><div class="learn-row"><strong>Сначала спроси</strong><span>1. ${r.ask[0]}<br>2. ${r.ask[1]}</span></div><div class="learn-row hint"><strong>Мягкая подсказка</strong><span>${r.hint}</span></div><div class="learn-row fact"><strong>После ответа ребёнка</strong><span>${r.fact}</span></div></section>`;
+ const v=viewRole(),words=r.name.trim().split(/\s+/),firstWord=words[0],tail=words.slice(1).join(' '),isLong=r.name.length>10;
+ const nameHTML=`<span class="name-word"><span class="first" style="color:${r.color}">${r.first}</span>${firstWord.slice(1)}</span>${tail?`<span class="name-rest">${tail}</span>`:''}`;
+ const child=`<section class="learn-child-view"><div class="learn-photo"><img src="${r.photo}" alt="${r.name}" decoding="async" fetchpriority="high" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="learn-fallback">${r.fallback}</div></div><div class="learn-name ${isLong?'long-name':''} ${tail?'multi-word':''}">${nameHTML}</div></section>`;
+ const credit=r.credit?`<div class="photo-credit">${r.credit}</div>`:'';
+ const adult=`<section class="learn-parent-view"><div class="learn-parent-kicker">Экран взрослого • что сказать и спросить</div><div class="learn-row"><strong>Сначала спроси</strong><span>1. ${r.ask[0]}<br>2. ${r.ask[1]}</span></div><div class="learn-row hint"><strong>Мягкая подсказка</strong><span>${r.hint}</span></div><div class="learn-row fact"><strong>После ответа ребёнка</strong><span>${r.fact}</span></div>${credit}</section>`;
  stageInner.innerHTML=`<div class="learn-card learn-single">${v==='child'?child:adult}</div>`;
  if(!state.done){
    state.done=true;state.updatedAt=Date.now();updateNextControls();
@@ -285,6 +289,48 @@ function renderOrder(r){
  stageInner.innerHTML=`<div class="order-board"><div class="order-slots">${[0,1,2].map(i=>`<button class="order-slot ${d.slots[i]?'filled':''}" data-i="${i}">${d.slots[i]?r.items.find(v=>v[0]===d.slots[i])[1]:i+1}</button>`).join('')}</div><div class="order-pool">${r.items.map(([id,e])=>`<button class="order-item ${d.slots.includes(id)?'used':''} ${d.pick===id?'picked':''}" data-id="${id}">${e}</button>`).join('')}</div></div>`;
  $$('.order-item').forEach(btn=>{btn.disabled=viewRole()==='parent';if(viewRole()!=='parent')btn.onclick=()=>{d.pick=btn.dataset.id;touchState();render()}});
  $$('.order-slot').forEach(btn=>{btn.disabled=viewRole()==='parent';if(viewRole()!=='parent')btn.onclick=()=>{const i=+btn.dataset.i;if(!d.pick){if(d.slots[i]){d.slots[i]=null;state.done=false;touchState();render()}else showFeedback('Сначала выбери картинку','try');return}d.slots[i]=d.pick;d.pick=null;if(d.slots.filter(Boolean).length===3){if(d.slots.every((v,i)=>v===r.answer[i])){state.done=true;showFeedback('👍 Правильный порядок!','good')}else{state.done=false;showFeedback('Пока не так. Можно поменять.','try')}}touchState();render()}});
+}
+
+
+function renderMissing(r){
+ const d=data(),v=viewRole();d.phase=d.phase||'look';d.wrong=Array.isArray(d.wrong)?d.wrong:[];
+ const hidden=r.items.find(x=>x[0]===r.hidden);
+ if(v==='parent'){
+   stageInner.innerHTML=d.phase==='look'
+    ? `<div class="new-parent-card"><div><strong>Сначала дай ребёнку запомнить</strong><p>На детском экране сейчас видны все четыре картинки.</p><span>${r.items.map(x=>x[1]).join(' ')}</span><p>Когда ребёнок готов, нажми внизу <b>«Спрятать одну»</b>.</p></div></div>`
+    : `<div class="new-parent-card"><div><strong>Что исчезло?</strong><p>Одна картинка уже скрыта на детском экране.</p><span>${hidden?hidden[1]:'❓'}</span><p>Правильный ответ показан выше только взрослому. Не подсказывай сразу.</p></div></div>`;
+   return
+ }
+ if(d.phase==='look'){
+   stageInner.innerHTML=`<div class="missing-board"><div class="missing-row">${r.items.map(([_id,e])=>`<div class="missing-card">${e}</div>`).join('')}</div><div class="missing-wait">👀 Запомни картинки — взрослый скоро спрячет одну</div></div>`;
+   return
+ }
+ const visible=r.items.filter(x=>x[0]!==r.hidden),scene=[...visible,['blank','❓']];
+ stageInner.innerHTML=`<div class="missing-quiz"><div class="missing-scene">${scene.map(([id,e])=>`<div class="missing-card ${id==='blank'?'missing-blank':''}">${e}</div>`).join('')}</div><div class="missing-answers">${r.items.map(([id,e])=>`<button class="missing-answer ${d.wrong.includes(id)?'wrong':''}" data-id="${id}" ${state.done||d.wrong.includes(id)?'disabled':''}>${e}</button>`).join('')}</div></div>`;
+ $('.missing-answer').forEach(btn=>{if(btn.disabled)return;btn.onclick=()=>{
+   sendPointerFrom(btn);const id=btn.dataset.id;
+   if(id===r.hidden){state.done=true;showFeedback('👍 Точно! Это исчезло','good')}
+   else{if(!d.wrong.includes(id))d.wrong.push(id);state.done=false;showFeedback('👎 Вспомни ещё','try')}
+   touchState();render()
+ }})
+}
+function renderSizeOrder(r){
+ const d=data(),v=viewRole();d.s=Array.isArray(d.s)?d.s:[];d.pick=d.pick||null;
+ const labels=['Маленький','Средний','Большой'];
+ stageInner.innerHTML=`<div class="size-board"><div class="size-slots">${[0,1,2].map(i=>`<button class="size-slot ${d.s[i]?'filled':''}" data-i="${i}" ${v==='parent'?'disabled':''}><span class="size-label">${labels[i]}</span><span class="size-content">${d.s[i]?r.items.find(x=>x[0]===d.s[i])?.[1]:'?'}</span></button>`).join('')}</div><div class="size-pool">${r.items.map(([id,e])=>`<button class="size-item ${d.s.includes(id)?'used':''} ${d.pick===id?'picked':''}" data-id="${id}" ${v==='parent'?'disabled':''}>${e}</button>`).join('')}</div></div>`;
+ if(v==='parent')return;
+ $('.size-item').forEach(btn=>{if(btn.disabled)return;btn.onclick=()=>{d.pick=btn.dataset.id;state.updatedAt=Date.now();sendState();render()}});
+ $('.size-slot').forEach(btn=>{btn.onclick=()=>{
+   const i=+btn.dataset.i;
+   if(!d.pick){if(d.s[i]){d.s[i]=null;state.done=false;touchState();render()}else showFeedback('Сначала выбери транспорт','try');return}
+   const old=d.s.indexOf(d.pick);if(old>=0)d.s[old]=null;
+   d.s[i]=d.pick;d.pick=null;state.done=false;
+   if(d.s.filter(Boolean).length===3){
+     if(d.s.every((x,j)=>x===r.answer[j])){state.done=true;showFeedback('👍 От маленького к большому!','good')}
+     else showFeedback('Посмотри на размеры ещё раз','try')
+   }
+   touchState();render()
+ }})
 }
 
 function renderCircle(r){
@@ -365,8 +411,9 @@ function updateNextControls(){
  next.textContent=last?'Завершить урок 🎉':'Дальше →';
  next.disabled=!state.done;
  force.style.display=state.done?'none':'inline-block';
- const r=currentRound(),locked=!!(r?.type==='choice'&&data().locked);
+ const r=currentRound(),d=data(),locked=!!(r?.type==='choice'&&d.locked),canHide=!!(r?.type==='missing'&&(d.phase||'look')==='look');
  if(retryChoiceBtn)retryChoiceBtn.style.display=(viewRole()==='parent'&&locked)?'inline-block':'none';
+ if(hideMissingBtn)hideMissingBtn.style.display=(viewRole()==='parent'&&canHide)?'inline-block':'none';
 }
 function resetChoiceAttempts(notify=true){
  if(currentRound()?.type!=='choice')return;
@@ -380,6 +427,7 @@ function resetChoiceAttempts(notify=true){
  render()
 }
 if(retryChoiceBtn)retryChoiceBtn.onclick=()=>resetChoiceAttempts(true);
+if(hideMissingBtn)hideMissingBtn.onclick=()=>{const r=currentRound(),d=data();if(viewRole()!=='parent'||r?.type!=='missing'||(d.phase||'look')!=='look')return;d.phase='quiz';d.wrong=[];state.done=false;state.updatedAt=Date.now();sendState(true);render()};
 continueRound.onclick=()=>{if(!state.done)return;data().completed=true;advance()};
 $('#skipBtn').onclick=()=>{if(!state.done)return;data().completed=true;advance()};
 $('#forceNextBtn').onclick=()=>{data().completed=false;advance()};
