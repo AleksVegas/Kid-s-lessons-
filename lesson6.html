@@ -1198,6 +1198,8 @@ document.addEventListener('click',e=>{if(mode==='remote'&&!liveParent&&e.target.
 cv.addEventListener('pointerup',()=>setTimeout(scheduleRemoteSync,150));
 const roomSearch=new URLSearchParams(location.search);
 if(roomSearch.get('child')==='1'&&/^[A-Za-z0-9]{6}$/.test(roomSearch.get('room')||''))initLive(false,roomSearch.get('room').toUpperCase());
+else if(roomSearch.get('mode')==='together')$('#modeTogether').click();
+else if(roomSearch.get('mode')==='remote')$('#modeRemote').click();
 })();
 </script><!-- User-supplied photos embedded inside the HTML for offline testing:
      pexels-silverkblack-39192367.jpg (doctor)

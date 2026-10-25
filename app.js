@@ -79,7 +79,8 @@ const lessons={
  '2':{id:'2',title:'Урок 2: Морское путешествие',short:'Урок 2 • Морское путешествие',blocks:lesson2Blocks,stickers:['🐠','🐢','⚓']},
  '3':{id:'3',title:'Урок 3: Приключение в зоопарке',short:'Урок 3 • Приключение в зоопарке',blocks:(window.lesson3Blocks||[]),stickers:['🦁','🐼','🦒']},
  '4':{id:'4',title:'Урок 4: День на ферме',short:'Урок 4 • День на ферме',blocks:(window.lesson4Blocks||[]),stickers:['🐄','🐔','🚜']},
- '5':{id:'5',title:'Урок 5: Город и транспорт',short:'Урок 5 • Город и транспорт',blocks:(window.lesson5Blocks||[]),stickers:['🚒','🚦','🏙️']}
+ '5':{id:'5',title:'Урок 5: Город и транспорт',short:'Урок 5 • Город и транспорт',blocks:(window.lesson5Blocks||[]),stickers:['🚒','🚦','🏙️']},
+ '6':{id:'6',title:'Урок 6: Наш дом и кто нам помогает',short:'Урок 6 • Наш дом и кто нам помогает',blocks:[],stickers:['🏠','🩺','📬']}
 };
 let lessonId='1',blocks=lesson1Blocks;
 function applyLesson(id){
@@ -120,10 +121,10 @@ $$('.backBtn').forEach(b=>b.onclick=resetHome);$('#exitLesson').onclick=resetHom
 function freshState(){state={lessonId,started:false,block:0,round:0,done:false,finished:false,updatedAt:Date.now(),roundData:{}}}
 $$('.lesson-card').forEach(b=>b.onclick=()=>applyLesson(b.dataset.lesson));
 applyLesson('1');
-$('#demoRole').onclick=()=>{role='demo';demoView='child';freshState();enterLesson();};
+$('#demoRole').onclick=()=>{if(lessonId==='6'){location.href='lesson6.html?mode=together';return;}role='demo';demoView='child';freshState();enterLesson();};
 if(demoChildView)demoChildView.onclick=()=>{if(role!=='demo')return;demoView='child';render()};
 if(demoParentView)demoParentView.onclick=()=>{if(role!=='demo')return;demoView='parent';render()};
-$('#parentRole').onclick=startParent;
+$('#parentRole').onclick=()=>{if(lessonId==='6'){location.href='lesson6.html?mode=remote';return;}startParent();};
 
 function makeRoom(){return Math.random().toString(36).slice(2,8).toUpperCase()}
 function childUrl(){const base=location.href.split('?')[0].split('#')[0];return `${base}?child=1&room=${encodeURIComponent(room)}`}
